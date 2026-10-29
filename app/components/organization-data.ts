@@ -1,0 +1,85 @@
+import type { Role, TeamMember } from "./organization-types";
+
+export const initialRoles: Role[] = [
+  {
+    id: "store-manager",
+    title: "Store Manager",
+    requiredSkills: "Leadership, Retail ops",
+    assignedTo: "Kavindi P.",
+    match: "Good match",
+    matchTone: "good",
+  },
+  {
+    id: "sales-associate",
+    title: "Sales Associate",
+    requiredSkills: "Selling, Customer service",
+    assignedTo: "Sahan R.",
+    match: "Partial: missing 1",
+    matchTone: "warning",
+  },
+  {
+    id: "inventory-clerk",
+    title: "Inventory Clerk",
+    requiredSkills: "Stock control",
+    assignedTo: "Kavindi P.",
+    match: "Good match",
+    matchTone: "good",
+  },
+  {
+    id: "bookkeeper",
+    title: "Bookkeeper",
+    requiredSkills: "Accounting basics",
+    assignedTo: "Unassigned",
+    match: "Gap",
+    matchTone: "danger",
+  },
+  {
+    id: "marketing-lead",
+    title: "Marketing Lead",
+    requiredSkills: "Social media, Content",
+    assignedTo: "Unassigned",
+    match: "Gap",
+    matchTone: "warning",
+  },
+  {
+    id: "delivery-coordinator",
+    title: "Delivery Coordinator",
+    requiredSkills: "Logistics",
+    assignedTo: "Unassigned",
+    match: "Gap",
+    matchTone: "neutral",
+  },
+];
+
+export const initialMembers: TeamMember[] = [
+  {
+    id: "kavindi",
+    name: "Kavindi P.",
+    contact: "",
+    skills: ["Leadership", "Retail ops", "Stock control"],
+    weeklyCapacity: 40,
+    employmentType: "Full-time",
+    workload: 120,
+    roleCount: 2,
+  },
+  {
+    id: "sahan",
+    name: "Sahan R.",
+    contact: "",
+    skills: ["Selling", "Customer service"],
+    weeklyCapacity: 40,
+    employmentType: "Full-time",
+    workload: 70,
+    roleCount: 1,
+  },
+  {
+    id: "dilini",
+    name: "Dilini M.",
+    contact: "",
+    skills: ["Accounting basics"],
+    weeklyCapacity: 40,
+    employmentType: "Full-time",
+    workload: 0,
+    roleCount: 0,
+  },
+];
