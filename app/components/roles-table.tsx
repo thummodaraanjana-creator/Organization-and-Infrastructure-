@@ -10,7 +10,6 @@ type RolesTableProps = {
   onAddRole: () => void;
   onAddMember: () => void;
   onConfirmAssignment: () => void;
-  onTabUnavailable: (tab: string) => void;
 };
 
 function MatchBadge({
@@ -43,7 +42,6 @@ export function RolesTable({
   onAddRole,
   onAddMember,
   onConfirmAssignment,
-  onTabUnavailable,
 }: RolesTableProps) {
   const filteredRoles = roles.filter((role) =>
     `${role.title} ${role.requiredSkills} ${role.assignedTo}`
@@ -53,10 +51,7 @@ export function RolesTable({
 
   return (
     <section className="min-w-0">
-      <OrganizationTabs
-        active="Roles & Team"
-        onUnavailable={onTabUnavailable}
-      />
+      <OrganizationTabs active="Roles & Team" />
       <div className="mb-[18px] flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div>
           <h2 className="text-[18px] font-bold leading-[23px] text-[#223f30]">

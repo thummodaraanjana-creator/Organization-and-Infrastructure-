@@ -59,7 +59,6 @@ export default function OrganizationOverview() {
             onAddMember={() => setModalOpen(true)}
             onAddRole={() => showNotice("Role creation")}
             onConfirmAssignment={() => showNotice("Assignment")}
-            onTabUnavailable={(tab) => showNotice(`${tab} view`)}
             roles={initialRoles}
             search={search}
           />

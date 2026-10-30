@@ -6,6 +6,8 @@ import { OrganizationHeader } from "./organization-header";
 import { initialMembers, initialRoles } from "./organization-data";
 import { OrganizationSidebar } from "./organization-sidebar";
 import { OrganizationTabs } from "./organization-tabs";
+import { formatLkr } from "./organization-equipment-data";
+import { useOrganizationEquipmentItems } from "./use-organization-equipment-items";
 
 type SummaryCardProps = {
   title: string;
@@ -81,7 +83,7 @@ function ChartNode({
   );
 }
 
-function NeedsAttention({ onViewGapReport }: { onViewGapReport: () => void }) {
+function NeedsAttention() {
   return (
     <section className="min-h-[310px] rounded-[16px] bg-white px-5 pb-[14px] pt-[18px] shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
       <h2 className="mb-[15px] text-[19px] font-bold leading-6 text-[#223f30]">
@@ -98,22 +100,27 @@ function NeedsAttention({ onViewGapReport }: { onViewGapReport: () => void }) {
         <p className="flex min-h-[41px] items-center rounded-[9px] bg-[#fbe3df] px-[11px] py-2 text-[13px] font-bold leading-[17px] text-[#8b1d1d]">
           Urgent gap: Bookkeeper role has nobody assigned.
         </p>
-        <button
-          className="h-[41px] w-full rounded-[9px] border border-[#4b7f5b] bg-white text-[14px] text-[#305f49] hover:bg-[#e1eee5]"
-          onClick={onViewGapReport}
-          type="button"
+        <Link
+          className="inline-flex h-[41px] w-full items-center justify-center rounded-[9px] border border-[#4b7f5b] bg-white text-[14px] text-[#305f49] hover:bg-[#e1eee5]"
+          href="/organization/gap-report"
         >
           View gap report
-        </button>
+        </Link>
       </div>
     </section>
   );
 }
 
 export default function OrganizationDashboard() {
+  const { items } = useOrganizationEquipmentItems();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bannerVisible, setBannerVisible] = useState(true);
   const [notice, setNotice] = useState("");
+  const missingItems = items.filter((item) => item.status === "Missing");
+  const moneyNeeded = missingItems.reduce(
+    (total, item) => total + item.estimatedCost,
+    0,
+  );
 
   const showNotice = useCallback((feature: string) => {
     setNotice(`${feature} is not implemented yet.`);
@@ -141,10 +148,7 @@ export default function OrganizationDashboard() {
       />
       <main className="ml-0 px-4 pb-8 pt-[66px] md:ml-[286px] md:pl-3 md:pr-[10px] md:pt-[32px]">
         <div className="mx-auto max-w-[1192px]">
-          <OrganizationTabs
-            active="Overview"
-            onUnavailable={(tab) => showNotice(tab)}
-          />
+          <OrganizationTabs active="Overview" />
           {bannerVisible && (
             <section className="mb-[20px] flex flex-col gap-3 rounded-[16px] bg-[#dde9dc] px-4 py-[14px] shadow-[0_1px_2px_rgba(0,0,0,0.1)] sm:px-5 lg:min-h-[83px] lg:flex-row lg:items-center lg:justify-between lg:gap-4">
               <div>
@@ -183,19 +187,21 @@ export default function OrganizationDashboard() {
           <div className="mb-[20px] grid grid-cols-1 gap-[12px] sm:grid-cols-2 xl:grid-cols-4">
             <SummaryCard title="Roles" value="6" detail="3 assigned" />
             <SummaryCard title="Team members" value="3" detail="1 overloaded" />
-            <SummaryCard title="Tools & equipment" value="7" detail="3 still missing" />
+            <SummaryCard
+              title="Tools & equipment"
+              value={String(items.length)}
+              detail={`${missingItems.length} still missing`}
+            />
             <SummaryCard
               title="Money needed"
-              value="LKR 130,000"
+              value={`LKR ${formatLkr(moneyNeeded)}`}
               detail="for missing items"
             />
           </div>
 
           <div className="grid gap-[12px] xl:grid-cols-[1.2fr_1fr]">
             <OrganizationChart />
-            <NeedsAttention
-              onViewGapReport={() => showNotice("Gap report screen")}
-            />
+            <NeedsAttention />
           </div>
         </div>
       </main>

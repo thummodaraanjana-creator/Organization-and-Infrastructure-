@@ -5,19 +5,15 @@ import Link from "next/link";
 const tabs = [
   { label: "Overview", href: "/organization/overview" },
   { label: "Roles & Team", href: "/" },
-  { label: "Equipment & Costs" },
-  { label: "Gap Report" },
+  { label: "Equipment & Costs", href: "/organization/equipment" },
+  { label: "Gap Report", href: "/organization/gap-report" },
 ];
 
 type OrganizationTabsProps = {
-  active: "Overview" | "Roles & Team";
-  onUnavailable: (tab: string) => void;
+  active: "Overview" | "Roles & Team" | "Equipment & Costs" | "Gap Report";
 };
 
-export function OrganizationTabs({
-  active,
-  onUnavailable,
-}: OrganizationTabsProps) {
+export function OrganizationTabs({ active }: OrganizationTabsProps) {
   return (
     <nav
       aria-label="Organization sections"
@@ -45,14 +41,14 @@ export function OrganizationTabs({
         }
 
         return (
-          <button
+          <Link
+            aria-current={selected ? "page" : undefined}
             className={className}
+            href={tab.href}
             key={tab.label}
-            onClick={() => onUnavailable(`${tab.label} screen`)}
-            type="button"
           >
             {tab.label}
-          </button>
+          </Link>
         );
       })}
     </nav>
