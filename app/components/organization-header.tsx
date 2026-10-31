@@ -18,7 +18,7 @@ export function OrganizationHeader({
   onUnavailable,
 }: OrganizationHeaderProps) {
   return (
-    <header className="relative ml-0 flex h-[130px] items-center justify-between overflow-x-clip overflow-y-visible bg-white px-6 md:ml-[286px] md:pl-[62px] md:pr-[42px]">
+    <header className="sticky top-0 z-20 ml-0 flex h-[130px] items-center justify-between overflow-x-clip overflow-y-visible bg-white px-6 md:ml-[286px] md:pl-[62px] md:pr-[42px]">
       <Image
         alt=""
         className="pointer-events-none absolute left-0 top-0 hidden max-w-none md:block"

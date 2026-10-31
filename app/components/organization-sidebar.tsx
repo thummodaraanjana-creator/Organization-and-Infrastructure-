@@ -65,7 +65,7 @@ export function OrganizationSidebar({
           <span className="relative text-[15px] font-bold leading-5 text-white">
             Willow &amp; Co.
           </span>
-          <span className="relative text-[12px] leading-4 text-[#364e3b]">
+          <span className="relative text-[12px] leading-4 text-white">
             Business profile
           </span>
         </button>
