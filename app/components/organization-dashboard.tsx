@@ -29,7 +29,7 @@ function SummaryCard({ title, value, detail }: SummaryCardProps) {
 
 function OrganizationChart() {
   return (
-    <section className="min-h-[310px] rounded-[16px] bg-white px-5 pb-5 pt-[18px] shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+    <section className="rounded-[16px] bg-white px-5 pb-5 pt-[18px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[310px]">
       <h2 className="text-[19px] font-bold leading-6 text-[#223f30]">
         Organisation chart
       </h2>
@@ -85,7 +85,7 @@ function ChartNode({
 
 function NeedsAttention() {
   return (
-    <section className="min-h-[310px] rounded-[16px] bg-white px-5 pb-[14px] pt-[18px] shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+    <section className="rounded-[16px] bg-white px-5 pb-[14px] pt-[18px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[310px]">
       <h2 className="mb-[15px] text-[19px] font-bold leading-6 text-[#223f30]">
         Needs attention
       </h2>
@@ -146,7 +146,7 @@ export default function OrganizationDashboard() {
         search=""
         title="Organization"
       />
-      <main className="ml-0 px-4 pb-8 pt-[66px] md:ml-[286px] md:pl-3 md:pr-[10px] md:pt-[32px]">
+      <main className="ml-0 px-4 pb-8 pt-[66px] lg:ml-[286px] lg:pl-3 lg:pr-[10px] lg:pt-[32px]">
         <div className="mx-auto max-w-[1192px]">
           <OrganizationTabs active="Overview" />
           {bannerVisible && (
@@ -208,7 +208,7 @@ export default function OrganizationDashboard() {
       {notice && (
         <div
           aria-live="polite"
-          className="fixed bottom-5 left-1/2 z-[60] -translate-x-1/2 rounded-lg bg-[#223f30] px-4 py-3 text-center text-sm text-white shadow-lg"
+          className="fixed bottom-5 left-1/2 z-[60] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg bg-[#223f30] px-4 py-3 text-center text-sm text-white shadow-lg"
           role="status"
         >
           {notice}

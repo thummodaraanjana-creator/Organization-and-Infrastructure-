@@ -52,7 +52,7 @@ export default function OrganizationOverview() {
         onUnavailable={showNotice}
         search={search}
       />
-      <main className="ml-0 px-4 pb-8 pt-[66px] md:ml-[286px] md:pl-4 md:pr-2 md:pt-[28px]">
+      <main className="ml-0 px-4 pb-8 pt-[66px] lg:ml-[286px] lg:pl-4 lg:pr-2 lg:pt-[28px]">
         <div className="mx-auto max-w-[1192px]">
           <RolesTable
             members={members}
@@ -72,7 +72,7 @@ export default function OrganizationOverview() {
       {notice && (
         <div
           aria-live="polite"
-          className="fixed bottom-5 left-1/2 z-[60] -translate-x-1/2 rounded-lg bg-[#223f30] px-4 py-3 text-sm text-white shadow-lg"
+          className="fixed bottom-5 left-1/2 z-[60] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg bg-[#223f30] px-4 py-3 text-center text-sm text-white shadow-lg"
           role="status"
         >
           {notice}

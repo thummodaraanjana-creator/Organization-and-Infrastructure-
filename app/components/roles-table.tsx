@@ -81,13 +81,13 @@ export function RolesTable({
       </div>
 
       <div className="grid items-start gap-[12px] xl:grid-cols-[minmax(0,684fr)_minmax(360px,428fr)] xl:gap-[18px]">
-        <section className="min-h-[522px] min-w-0 overflow-hidden rounded-[16px] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+        <section className="min-w-0 overflow-hidden rounded-[16px] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[522px]">
           <div className="px-5 pt-5">
             <h3 className="text-[19px] font-bold leading-6 text-[#223f30]">
               Roles
             </h3>
           </div>
-          <div className="overflow-x-auto px-5 pb-5 pt-[10px]">
+          <div aria-label="Roles" className="overflow-x-auto px-5 pb-5 pt-[10px]" tabIndex={0}>
             <table className="w-full min-w-[610px] table-fixed border-collapse text-left">
               <colgroup>
                 <col className="w-[28%]" />
@@ -161,7 +161,7 @@ function WorkloadPanel({
   );
 
   return (
-    <section className="min-h-[232px] rounded-[16px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+    <section className="rounded-[16px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[232px]">
       <h3 className="text-[19px] font-bold leading-6 text-[#223f30]">
         Team workload
       </h3>
@@ -211,7 +211,7 @@ function WorkloadPanel({
 
 function AssignmentPanel({ onConfirm }: { onConfirm: () => void }) {
   return (
-    <section className="min-h-[272px] rounded-[16px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+    <section className="rounded-[16px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[272px]">
       <h3 className="text-[19px] font-bold leading-6 text-[#223f30]">
         Assign member to role
       </h3>

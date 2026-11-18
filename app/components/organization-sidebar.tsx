@@ -33,17 +33,27 @@ export function OrganizationSidebar({
     <>
       {isOpen && (
         <button
-          aria-label="Close navigation"
-          className="fixed inset-0 z-30 bg-black/30 md:hidden"
+          aria-label="Close navigation backdrop"
+          className="fixed inset-0 z-30 bg-black/30 lg:hidden"
           onClick={onClose}
           type="button"
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[286px] flex-col overflow-y-auto rounded-r-[10px] border-r border-white bg-white px-6 pb-8 pt-[72px] shadow-[6px_4px_4px_rgba(0,0,0,0.25)] transition-transform duration-200 md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[286px] flex-col overflow-y-auto rounded-r-[10px] border-r border-white bg-white px-6 pb-8 pt-[72px] shadow-[6px_4px_4px_rgba(0,0,0,0.25)] transition-transform duration-200 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
+        <button
+          aria-label="Close navigation"
+          className="absolute right-4 top-4 z-10 grid size-10 place-items-center rounded-lg text-[#245d45] hover:bg-[#e1eee5] lg:hidden"
+          onClick={onClose}
+          type="button"
+        >
+          <span aria-hidden="true" className="text-2xl leading-none">
+            ×
+          </span>
+        </button>
         <div className="mb-[42px] text-center text-[21px] font-black tracking-[0.01em] text-[#245d45]">
           ASARA
         </div>

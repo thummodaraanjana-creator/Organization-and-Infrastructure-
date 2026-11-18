@@ -298,7 +298,7 @@ export default function OrganizationGapReport() {
         search=""
         title="Organization"
       />
-      <main className="ml-0 px-4 pb-8 pt-[66px] md:ml-[286px] md:pl-3 md:pr-[10px] md:pt-[32px]">
+      <main className="ml-0 px-4 pb-8 pt-[66px] lg:ml-[286px] lg:pl-3 lg:pr-[10px] lg:pt-[32px]">
         <div className="mx-auto max-w-[1192px]">
           <div className="print:hidden">
             <OrganizationTabs active="Gap Report" />
@@ -339,7 +339,7 @@ export default function OrganizationGapReport() {
             </div>
           </div>
           <section className="overflow-hidden rounded-[12px] bg-white px-3 pb-3 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.12)] sm:px-4">
-            <div className="overflow-x-auto">
+            <div aria-label="Gap report details" className="overflow-x-auto" tabIndex={0}>
               <table className="w-full min-w-[600px] border-collapse text-left text-[12px]">
                 <thead className="h-[32px] border-b border-[#e5ebdf] text-[10px] font-bold text-[#61776a]">
                   <tr>
@@ -421,7 +421,7 @@ export default function OrganizationGapReport() {
       {notice && (
         <div
           aria-live="polite"
-          className="fixed bottom-5 left-1/2 z-[80] -translate-x-1/2 rounded-lg bg-[#223f30] px-4 py-3 text-sm text-white shadow-lg print:hidden"
+          className="fixed bottom-5 left-1/2 z-[80] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg bg-[#223f30] px-4 py-3 text-center text-sm text-white shadow-lg print:hidden"
           role="status"
         >
           {notice}

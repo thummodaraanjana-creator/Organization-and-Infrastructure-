@@ -230,7 +230,7 @@ export default function OrganizationEquipment() {
         search=""
         title="Organization"
       />
-      <main className="ml-0 px-4 pb-8 pt-[66px] md:ml-[286px] md:pl-3 md:pr-[10px] md:pt-[32px]">
+      <main className="ml-0 px-4 pb-8 pt-[66px] lg:ml-[286px] lg:pl-3 lg:pr-[10px] lg:pt-[32px]">
         <div className="mx-auto max-w-[1192px]">
           <OrganizationTabs active="Equipment & Costs" />
           <div className="mb-[10px] flex flex-wrap items-end justify-between gap-3">
@@ -250,7 +250,7 @@ export default function OrganizationEquipment() {
           </div>
           <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,1.58fr)_minmax(260px,0.92fr)]">
             <section className="min-w-0 overflow-hidden rounded-[14px] bg-white px-4 pb-4 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)] sm:px-5">
-              <div className="overflow-x-auto">
+              <div aria-label="Equipment costs" className="overflow-x-auto" tabIndex={0}>
                 <table className="w-full min-w-[560px] border-collapse text-left text-[12px]">
                   <thead className="h-[34px] border-b border-[#e5ebdf] text-[11px] font-semibold text-[#61776a]">
                     <tr>
@@ -347,7 +347,7 @@ export default function OrganizationEquipment() {
       {notice && (
         <div
           aria-live="polite"
-          className="fixed bottom-5 left-1/2 z-[80] -translate-x-1/2 rounded-lg bg-[#223f30] px-4 py-3 text-center text-sm text-white shadow-lg"
+          className="fixed bottom-5 left-1/2 z-[80] max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg bg-[#223f30] px-4 py-3 text-center text-sm text-white shadow-lg"
           role="status"
         >
           {notice}
