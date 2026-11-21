@@ -14,6 +14,7 @@ export type Role = {
   title: string;
   requiredSkills: string;
   assignedTo: string;
-  match: "Good match" | "Partial: missing 1" | "Gap";
+  priority: "Urgent" | "Medium" | "Low";
+  match: "Good match" | "Partial match" | "Gap";
   matchTone: "good" | "warning" | "danger" | "neutral";
 };

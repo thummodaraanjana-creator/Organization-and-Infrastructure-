@@ -1,7 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 
 export type NewTeamMember = {
   name: string;
@@ -33,17 +39,28 @@ export function AddTeamMemberDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const dialogRef = useRef<HTMLElement>(null);
 
+  const close = useCallback(() => {
+    setName("");
+    setContact("");
+    setWeeklyCapacity("");
+    setEmploymentType("Full-time");
+    setSkills([...initialSkills]);
+    setSkillInput("");
+    setErrors({});
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     if (!isOpen) return;
     dialogRef.current?.focus({ preventScroll: true });
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") close();
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [close, isOpen]);
 
   if (!isOpen) return null;
 
@@ -79,20 +96,14 @@ export function AddTeamMemberDialog({
       weeklyCapacity: weeklyCapacity ? capacity : 40,
       employmentType,
     });
-    setName("");
-    setContact("");
-    setWeeklyCapacity("");
-    setSkills(initialSkills);
-    setEmploymentType("Full-time");
-    setErrors({});
-    onClose();
+    close();
   }
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/20 px-4 pt-[max(24px,23vh)] sm:px-6 max-[700px]:items-center max-[700px]:py-6"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target === event.currentTarget) close();
       }}
     >
       <section
@@ -114,13 +125,17 @@ export function AddTeamMemberDialog({
             <label className="block text-[13px] font-semibold leading-5 text-[#223f30] sm:text-[15px]">
               Full name
               <input
+                aria-describedby={errors.name ? "member-name-error" : undefined}
+                aria-invalid={Boolean(errors.name)}
+                aria-required="true"
+                autoComplete="name"
                 className="mt-[5px] h-[42px] w-full rounded-[7px] border border-[#cbd7d0] px-[11px] text-[15px] font-normal text-[#223f30] outline-none placeholder:text-[#777] focus:border-[#4b7f5b] focus:ring-1 focus:ring-[#4b7f5b]"
                 onChange={(event) => setName(event.target.value)}
                 placeholder="e.g. Dilini M."
                 value={name}
               />
               {errors.name && (
-                <span className="mt-1 block text-xs text-[#8b1d1d]">
+                <span className="mt-1 block text-xs text-[#8b1d1d]" id="member-name-error">
                   {errors.name}
                 </span>
               )}
@@ -128,14 +143,16 @@ export function AddTeamMemberDialog({
             <label className="block text-[13px] font-semibold leading-5 text-[#223f30] sm:text-[15px]">
               Email or phone
               <input
-                autoComplete="email"
+                aria-describedby={errors.contact ? "member-contact-error" : undefined}
+                aria-invalid={Boolean(errors.contact)}
+                aria-required="true"
                 className="mt-[5px] h-[42px] w-full rounded-[7px] border border-[#cbd7d0] px-[11px] text-[15px] font-normal text-[#223f30] outline-none placeholder:text-[#777] focus:border-[#4b7f5b] focus:ring-1 focus:ring-[#4b7f5b]"
                 onChange={(event) => setContact(event.target.value)}
                 placeholder="Contact"
                 value={contact}
               />
               {errors.contact && (
-                <span className="mt-1 block text-xs text-[#8b1d1d]">
+                <span className="mt-1 block text-xs text-[#8b1d1d]" id="member-contact-error">
                   {errors.contact}
                 </span>
               )}
@@ -169,6 +186,8 @@ export function AddTeamMemberDialog({
               ))}
             </div>
             <input
+              aria-describedby={errors.capacity ? "member-capacity-error" : undefined}
+              aria-invalid={Boolean(errors.capacity)}
               aria-label="Add a skill"
               className="mt-[7px] h-[42px] w-full rounded-[7px] border border-[#cbd7d0] px-[11px] text-[15px] text-[#223f30] outline-none placeholder:text-[#777] focus:border-[#4b7f5b] focus:ring-1 focus:ring-[#4b7f5b]"
               onChange={(event) => setSkillInput(event.target.value)}
@@ -205,7 +224,7 @@ export function AddTeamMemberDialog({
                 value={weeklyCapacity}
               />
               {errors.capacity && (
-                <span className="mt-1 block text-xs text-[#8b1d1d]">
+                <span className="mt-1 block text-xs text-[#8b1d1d]" id="member-capacity-error">
                   {errors.capacity}
                 </span>
               )}
@@ -236,7 +255,7 @@ export function AddTeamMemberDialog({
           <div className="mt-[21px] flex justify-end gap-[12px]">
             <button
               className="h-[41px] rounded-[9px] border border-[#cbd7d0] bg-white px-[18px] text-[14px] font-semibold text-[#305f49] hover:bg-[#f5f8f6]"
-              onClick={onClose}
+              onClick={close}
               type="button"
             >
               Cancel

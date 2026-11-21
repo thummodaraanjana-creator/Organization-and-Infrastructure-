@@ -7,6 +7,7 @@ export type EquipmentItem = {
   category: string;
   priority: EquipmentPriority;
   status: EquipmentStatus;
+  quantity: number;
   estimatedCost: number;
   notes: string;
 };
@@ -18,6 +19,7 @@ export const initialEquipmentItems: EquipmentItem[] = [
     category: "Sales",
     priority: "Urgent",
     status: "Missing",
+    quantity: 1,
     estimatedCost: 60000,
     notes: "",
   },
@@ -27,6 +29,7 @@ export const initialEquipmentItems: EquipmentItem[] = [
     category: "Sales",
     priority: "Medium",
     status: "Missing",
+    quantity: 1,
     estimatedCost: 45000,
     notes: "",
   },
@@ -36,6 +39,7 @@ export const initialEquipmentItems: EquipmentItem[] = [
     category: "Operations",
     priority: "Low",
     status: "Missing",
+    quantity: 1,
     estimatedCost: 25000,
     notes: "",
   },
@@ -45,6 +49,7 @@ export const initialEquipmentItems: EquipmentItem[] = [
     category: "Operations",
     priority: "Medium",
     status: "Owned",
+    quantity: 1,
     estimatedCost: 150000,
     notes: "",
   },
@@ -54,6 +59,7 @@ export const initialEquipmentItems: EquipmentItem[] = [
     category: "Sales",
     priority: "Low",
     status: "Owned",
+    quantity: 1,
     estimatedCost: 18000,
     notes: "",
   },
@@ -63,6 +69,7 @@ export const initialEquipmentItems: EquipmentItem[] = [
     category: "Sales",
     priority: "Medium",
     status: "Owned",
+    quantity: 1,
     estimatedCost: 32000,
     notes: "",
   },
@@ -72,6 +79,7 @@ export const initialEquipmentItems: EquipmentItem[] = [
     category: "Marketing",
     priority: "Low",
     status: "Owned",
+    quantity: 1,
     estimatedCost: 20000,
     notes: "",
   },

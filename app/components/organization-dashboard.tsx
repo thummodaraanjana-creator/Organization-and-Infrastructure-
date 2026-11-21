@@ -3,11 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { OrganizationHeader } from "./organization-header";
-import { initialMembers, initialRoles } from "./organization-data";
 import { OrganizationSidebar } from "./organization-sidebar";
 import { OrganizationTabs } from "./organization-tabs";
-import { formatLkr } from "./organization-equipment-data";
-import { useOrganizationEquipmentItems } from "./use-organization-equipment-items";
+import {
+  formatLkr,
+  initialEquipmentItems,
+} from "./organization-equipment-data";
+import { initialRoles } from "./organization-data";
+import { useOrganizationData } from "./use-organization-data";
+import type { Role, TeamMember } from "./organization-types";
 
 type SummaryCardProps = {
   title: string;
@@ -27,29 +31,41 @@ function SummaryCard({ title, value, detail }: SummaryCardProps) {
   );
 }
 
-function OrganizationChart() {
+function OrganizationChart({
+  roles,
+  search,
+}: {
+  roles: Role[];
+  search: string;
+}) {
+  const filteredRoles = roles.filter((role) =>
+    `${role.title} ${role.assignedTo} ${role.requiredSkills}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
+  );
+
   return (
     <section className="rounded-[16px] bg-white px-5 pb-5 pt-[18px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[310px]">
       <h2 className="text-[19px] font-bold leading-6 text-[#223f30]">
-        Organisation chart
+        Organization chart
       </h2>
       <div className="mt-[7px] flex flex-col items-center">
-        <Link
-          className="min-h-[45px] rounded-[12px] bg-[#4b7f5b] px-4 text-[15px] font-semibold text-white shadow-[0_1px_3px_rgba(0,0,0,0.12)]"
-          href="/"
-        >
-          Store Manager · Kavindi P.
-        </Link>
-        <div
-          aria-hidden="true"
-          className="h-[17px] w-px bg-[#a5beac]"
-        />
-        <div className="flex w-full flex-wrap justify-center gap-[10px]">
-          <ChartNode name="Sales Associate" person="Sahan R." />
-          <ChartNode name="Inventory Clerk" person="Kavindi P." />
-          <ChartNode name="Bookkeeper" person="Unassigned" unassigned />
-          <ChartNode name="Marketing Lead" person="Unassigned" unassigned />
-        </div>
+        {filteredRoles.length > 0 ? (
+          <div className="flex w-full flex-wrap justify-center gap-[10px]">
+            {filteredRoles.map((role) => (
+              <ChartNode
+                key={role.id}
+                name={role.title}
+                person={role.assignedTo}
+                unassigned={role.assignedTo === "Unassigned"}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="py-8 text-sm text-[#61776a]">
+            No roles match your search.
+          </p>
+        )}
       </div>
     </section>
   );
@@ -83,23 +99,56 @@ function ChartNode({
   );
 }
 
-function NeedsAttention() {
+function NeedsAttention({
+  members,
+  roles,
+  search,
+}: {
+  members: TeamMember[];
+  roles: Role[];
+  search: string;
+}) {
+  const attentionItems = [
+    ...members
+      .filter((member) => member.workload > 100)
+      .map((member) => ({
+        id: `workload-${member.id}`,
+        text: `Overloaded: ${member.name} is at ${member.workload}% of weekly capacity.`,
+      })),
+    ...roles
+      .filter((role) => role.assignedTo !== "Unassigned" && role.match !== "Good match")
+      .map((role) => ({
+        id: `skills-${role.id}`,
+        text: `Skill mismatch: ${role.assignedTo} does not meet all skills for ${role.title}.`,
+      })),
+    ...roles
+      .filter((role) => role.assignedTo === "Unassigned")
+      .map((role) => ({
+        id: `gap-${role.id}`,
+        text: `${role.priority} gap: ${role.title} has nobody assigned.`,
+      })),
+  ].filter((item) => item.text.toLowerCase().includes(search.toLowerCase()));
+
   return (
     <section className="rounded-[16px] bg-white px-5 pb-[14px] pt-[18px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[310px]">
       <h2 className="mb-[15px] text-[19px] font-bold leading-6 text-[#223f30]">
         Needs attention
       </h2>
       <div className="space-y-[12px]">
-        <p className="flex min-h-[41px] items-center rounded-[9px] bg-[#fbe3df] px-[11px] py-2 text-[13px] font-bold leading-[17px] text-[#8b1d1d]">
-          Overloaded: Kavindi P. is at 120% of weekly capacity.
-        </p>
-        <p className="flex min-h-[58px] items-center rounded-[9px] bg-[#fff1d4] px-[11px] py-2 text-[13px] font-bold leading-[17px] text-[#674200]">
-          Skill mismatch: Sahan R. is missing Customer Service for Sales
-          Associate.
-        </p>
-        <p className="flex min-h-[41px] items-center rounded-[9px] bg-[#fbe3df] px-[11px] py-2 text-[13px] font-bold leading-[17px] text-[#8b1d1d]">
-          Urgent gap: Bookkeeper role has nobody assigned.
-        </p>
+        {attentionItems.length > 0 ? (
+          attentionItems.slice(0, 3).map((item) => (
+            <p
+              className="flex min-h-[41px] items-center rounded-[9px] bg-[#fff1d4] px-[11px] py-2 text-[13px] font-bold leading-[17px] text-[#674200]"
+              key={item.id}
+            >
+              {item.text}
+            </p>
+          ))
+        ) : (
+          <p className="rounded-[9px] bg-[#e1eee5] px-[11px] py-3 text-[13px] text-[#305f49]">
+            No items need attention.
+          </p>
+        )}
         <Link
           className="inline-flex h-[41px] w-full items-center justify-center rounded-[9px] border border-[#4b7f5b] bg-white text-[14px] text-[#305f49] hover:bg-[#e1eee5]"
           href="/organization/gap-report"
@@ -112,15 +161,43 @@ function NeedsAttention() {
 }
 
 export default function OrganizationDashboard() {
-  const { items } = useOrganizationEquipmentItems();
+  const { items, roles, members, setItems, setRoles } = useOrganizationData();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bannerVisible, setBannerVisible] = useState(true);
   const [notice, setNotice] = useState("");
+  const [search, setSearch] = useState("");
   const missingItems = items.filter((item) => item.status === "Missing");
   const moneyNeeded = missingItems.reduce(
-    (total, item) => total + item.estimatedCost,
+    (total, item) => total + item.estimatedCost * item.quantity,
     0,
   );
+  const assignedRoleCount = roles.filter(
+    (role) => role.assignedTo !== "Unassigned",
+  ).length;
+  const overloadedCount = members.filter(
+    (member) => member.workload > 100,
+  ).length;
+
+  function applySuggestedSetup() {
+    const newRoles = initialRoles.filter(
+      (suggestedRole) =>
+        !roles.some((role) => role.id === suggestedRole.id),
+    );
+    const newEquipment = initialEquipmentItems.filter(
+      (suggestedItem) =>
+        !items.some((item) => item.id === suggestedItem.id),
+    );
+    if (newRoles.length > 0) setRoles((current) => [...current, ...newRoles]);
+    if (newEquipment.length > 0) {
+      setItems((current) => [...current, ...newEquipment]);
+    }
+    setBannerVisible(false);
+    setNotice(
+      newRoles.length + newEquipment.length > 0
+        ? "Suggested setup applied."
+        : "Your setup already includes the suggestions.",
+    );
+  }
 
   const showNotice = useCallback((feature: string) => {
     setNotice(`${feature} is not implemented yet.`);
@@ -137,18 +214,26 @@ export default function OrganizationDashboard() {
       <OrganizationSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        onUnavailable={showNotice}
       />
       <OrganizationHeader
         onMenuClick={() => setSidebarOpen(true)}
-        onSearchChange={() => undefined}
+        onSearchChange={setSearch}
         onUnavailable={showNotice}
-        search=""
+        searchPlaceholder="Search roles and team"
+        search={search}
         title="Organization"
       />
-      <main className="ml-0 px-4 pb-8 pt-[66px] lg:ml-[286px] lg:pl-3 lg:pr-[10px] lg:pt-[32px]">
+      <main className="ml-0 min-w-0 px-4 pb-10 pt-5 lg:ml-[260px] lg:px-3 lg:pt-[28px]">
         <div className="mx-auto max-w-[1192px]">
           <OrganizationTabs active="Overview" />
+          <div className="mb-[18px]">
+            <h2 className="text-[20px] font-bold leading-7 text-[#223f30]">
+              Organization Overview
+            </h2>
+            <p className="mt-1 text-[14px] leading-5 text-[#61776a]">
+              Review your team, equipment, and current organization gaps.
+            </p>
+          </div>
           {bannerVisible && (
             <section className="mb-[20px] flex flex-col gap-3 rounded-[16px] bg-[#dde9dc] px-4 py-[14px] shadow-[0_1px_2px_rgba(0,0,0,0.1)] sm:px-5 lg:min-h-[83px] lg:flex-row lg:items-center lg:justify-between lg:gap-4">
               <div>
@@ -170,12 +255,7 @@ export default function OrganizationDashboard() {
                 </button>
                 <button
                   className="h-[41px] rounded-[10px] bg-[#4b7f5b] px-[14px] text-[14px] font-semibold text-white hover:bg-[#3f704f]"
-                  onClick={() => {
-                    setBannerVisible(false);
-                    setNotice(
-                      "Suggestions are shown in this sample screen; applying them is not persisted.",
-                    );
-                  }}
+                  onClick={applySuggestedSetup}
                   type="button"
                 >
                   Apply suggestions
@@ -185,10 +265,18 @@ export default function OrganizationDashboard() {
           )}
 
           <div className="mb-[20px] grid grid-cols-1 gap-[12px] sm:grid-cols-2 xl:grid-cols-4">
-            <SummaryCard title="Roles" value="6" detail="3 assigned" />
-            <SummaryCard title="Team members" value="3" detail="1 overloaded" />
             <SummaryCard
-              title="Tools & equipment"
+              title="Roles"
+              value={String(roles.length)}
+              detail={`${assignedRoleCount} assigned`}
+            />
+            <SummaryCard
+              title="Team members"
+              value={String(members.length)}
+              detail={`${overloadedCount} overloaded`}
+            />
+            <SummaryCard
+              title="Equipment"
               value={String(items.length)}
               detail={`${missingItems.length} still missing`}
             />
@@ -200,8 +288,8 @@ export default function OrganizationDashboard() {
           </div>
 
           <div className="grid gap-[12px] xl:grid-cols-[1.2fr_1fr]">
-            <OrganizationChart />
-            <NeedsAttention />
+            <OrganizationChart roles={roles} search={search} />
+            <NeedsAttention members={members} roles={roles} search={search} />
           </div>
         </div>
       </main>
@@ -215,7 +303,7 @@ export default function OrganizationDashboard() {
         </div>
       )}
       <span className="sr-only">
-        {initialRoles.length} roles and {initialMembers.length} team members
+        {roles.length} roles and {members.length} team members
       </span>
     </div>
   );

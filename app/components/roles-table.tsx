@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { OrganizationTabs } from "./organization-tabs";
 import type { Role, TeamMember } from "./organization-types";
 
@@ -9,7 +10,7 @@ type RolesTableProps = {
   search: string;
   onAddRole: () => void;
   onAddMember: () => void;
-  onConfirmAssignment: () => void;
+  onAssignRole: (roleId: string, memberId: string) => void;
 };
 
 function MatchBadge({
@@ -41,7 +42,7 @@ export function RolesTable({
   search,
   onAddRole,
   onAddMember,
-  onConfirmAssignment,
+  onAssignRole,
 }: RolesTableProps) {
   const filteredRoles = roles.filter((role) =>
     `${role.title} ${role.requiredSkills} ${role.assignedTo}`
@@ -54,24 +55,23 @@ export function RolesTable({
       <OrganizationTabs active="Roles & Team" />
       <div className="mb-[18px] flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h2 className="text-[18px] font-bold leading-[23px] text-[#223f30]">
-            Roles &amp; team members
+          <h2 className="text-[20px] font-bold leading-7 text-[#223f30]">
+            Roles &amp; Team
           </h2>
-          <p className="mt-[3px] text-[13px] leading-[18px] text-[#61776a]">
-            Each role lists required skills. Each team member lists their own
-            skills and weekly workload.
+          <p className="mt-1 text-[14px] leading-5 text-[#61776a]">
+            Review responsibilities, skill coverage, and team workload.
           </p>
         </div>
-        <div className="flex shrink-0 gap-[10px]">
+        <div className="flex flex-wrap gap-[10px]">
           <button
-            className="h-[41px] rounded-[11px] border border-[#4b7f5b] bg-white px-[13px] text-[16px] font-semibold text-[#305f49] hover:bg-[#e1eee5]"
+            className="h-10 rounded-[9px] border border-[#4b7f5b] bg-white px-4 text-sm font-semibold text-[#305f49] hover:bg-[#e1eee5]"
             onClick={onAddMember}
             type="button"
           >
             Add team member
           </button>
           <button
-            className="h-[41px] rounded-[9px] border border-[#4b7f5b] bg-[#4b7f5b] px-[17px] text-[16px] font-semibold text-white hover:bg-[#3f704f]"
+            className="h-10 rounded-[9px] bg-[#4b7f5b] px-4 text-sm font-semibold text-white hover:bg-[#3f704f]"
             onClick={onAddRole}
             type="button"
           >
@@ -80,7 +80,7 @@ export function RolesTable({
         </div>
       </div>
 
-      <div className="grid items-start gap-[12px] xl:grid-cols-[minmax(0,684fr)_minmax(360px,428fr)] xl:gap-[18px]">
+      <div className="grid items-start gap-[12px] xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.9fr)] xl:gap-[18px]">
         <section className="min-w-0 overflow-hidden rounded-[16px] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[522px]">
           <div className="px-5 pt-5">
             <h3 className="text-[19px] font-bold leading-6 text-[#223f30]">
@@ -129,7 +129,9 @@ export function RolesTable({
                       className="h-16 px-2 text-sm text-[#61776a]"
                       colSpan={4}
                     >
-                      No roles match your search.
+                      {roles.length === 0
+                        ? "No roles have been added yet."
+                        : "No roles match your search."}
                     </td>
                   </tr>
                 )}
@@ -140,7 +142,11 @@ export function RolesTable({
 
         <div className="grid gap-[18px]">
           <WorkloadPanel members={members} search={search} />
-          <AssignmentPanel onConfirm={onConfirmAssignment} />
+          <AssignmentPanel
+            members={members}
+            onAssignRole={onAssignRole}
+            roles={roles}
+          />
         </div>
       </div>
     </section>
@@ -155,7 +161,7 @@ function WorkloadPanel({
   search: string;
 }) {
   const filteredMembers = members.filter((member) =>
-    `${member.name} ${member.roleCount}`
+    `${member.name} ${member.roleCount} ${member.skills.join(" ")} ${member.employmentType}`
       .toLowerCase()
       .includes(search.toLowerCase()),
   );
@@ -197,6 +203,14 @@ function WorkloadPanel({
                 style={{ width: `${Math.min(member.workload, 100)}%` }}
               />
             </div>
+            <p className="truncate text-xs text-[#61776a]">
+              {member.skills.length > 0
+                ? member.skills.join(", ")
+                : "No skills added"}
+            </p>
+            <p className="text-xs text-[#61776a]">
+              {member.employmentType}
+            </p>
           </div>
         ))}
         {filteredMembers.length === 0 && (
@@ -209,24 +223,104 @@ function WorkloadPanel({
   );
 }
 
-function AssignmentPanel({ onConfirm }: { onConfirm: () => void }) {
+function AssignmentPanel({
+  members,
+  roles,
+  onAssignRole,
+}: {
+  members: TeamMember[];
+  roles: Role[];
+  onAssignRole: (roleId: string, memberId: string) => void;
+}) {
+  const assignableRoles = roles.filter(
+    (role) => role.assignedTo === "Unassigned",
+  );
+  const [roleId, setRoleId] = useState("");
+  const [memberId, setMemberId] = useState(
+    members.find((member) => member.name === "Dilini M.")?.id ?? "",
+  );
+  const selectedRole =
+    assignableRoles.find((role) => role.id === roleId) ?? assignableRoles[0];
+  const selectedMember =
+    members.find((member) => member.id === memberId) ?? members[0];
+  const requiredSkills =
+    selectedRole?.requiredSkills.split(",").map((skill) => skill.trim()) ?? [];
+  const missingSkills =
+    selectedMember === undefined
+      ? requiredSkills
+      : requiredSkills.filter(
+          (skill) =>
+            !selectedMember.skills.some(
+              (memberSkill) => memberSkill.toLowerCase() === skill.toLowerCase(),
+            ),
+        );
+
   return (
-    <section className="rounded-[16px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[272px]">
+    <section className="rounded-[16px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
       <h3 className="text-[19px] font-bold leading-6 text-[#223f30]">
         Assign member to role
       </h3>
-      <p className="mt-[14px] text-[14px] leading-4 text-[#61776a]">
-        Bookkeeper ← Dilini M.
-      </p>
-      <div className="mt-[11px] min-h-[59px] rounded-[9px] bg-[#fff1d4] px-3 py-[10px] text-[14px] leading-[18px] text-[#674200]">
-        Skill check: Dilini has Accounting basics. Match is good.
-      </div>
-      <div className="mt-[18px] min-h-[38px] rounded-[9px] bg-[#e1eee5] px-3 py-[10px] text-[13px] leading-[18px] text-[#305f49]">
-        Workload check: she would be at 55%. No overload.
-      </div>
+      {assignableRoles.length > 0 && members.length > 0 ? (
+        <>
+          <label className="mt-4 block text-sm font-semibold text-[#405a4b]">
+            Role
+            <select
+              className="mt-1 h-10 w-full rounded-lg border border-[#cbd7d0] bg-white px-3 text-sm font-normal text-[#223f30] focus:border-[#4b7f5b] focus:outline-none focus:ring-1 focus:ring-[#4b7f5b]"
+              onChange={(event) => setRoleId(event.target.value)}
+              value={selectedRole?.id ?? ""}
+            >
+              {assignableRoles.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="mt-3 block text-sm font-semibold text-[#405a4b]">
+            Team member
+            <select
+              className="mt-1 h-10 w-full rounded-lg border border-[#cbd7d0] bg-white px-3 text-sm font-normal text-[#223f30] focus:border-[#4b7f5b] focus:outline-none focus:ring-1 focus:ring-[#4b7f5b]"
+              onChange={(event) => setMemberId(event.target.value)}
+              value={selectedMember?.id ?? ""}
+            >
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div
+            className={`mt-3 rounded-[9px] px-3 py-2 text-sm leading-5 ${
+              missingSkills.length === 0
+                ? "bg-[#e1eee5] text-[#305f49]"
+                : "bg-[#fff1d4] text-[#674200]"
+            }`}
+          >
+            {missingSkills.length === 0
+              ? "All required skills are covered."
+              : `Missing skills: ${missingSkills.join(", ")}.`}
+          </div>
+          <p className="mt-2 text-xs leading-5 text-[#61776a]">
+            Current workload: {selectedMember?.workload ?? 0}%. Role hours have
+            not been estimated.
+          </p>
+        </>
+      ) : (
+        <p className="mt-4 rounded-lg bg-[#e1eee5] px-3 py-3 text-sm text-[#305f49]">
+          {members.length === 0
+            ? "Add a team member before assigning a role."
+            : "All roles are assigned."}
+        </p>
+      )}
       <button
-        className="mt-[11px] h-[41px] rounded-[11px] bg-[#4b7f5b] px-[17px] text-[16px] font-semibold text-white hover:bg-[#3f704f]"
-        onClick={onConfirm}
+        className="mt-4 h-10 rounded-[9px] bg-[#4b7f5b] px-4 text-sm font-semibold text-white hover:bg-[#3f704f] disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={!selectedRole || !selectedMember}
+        onClick={() => {
+          if (selectedRole && selectedMember) {
+            onAssignRole(selectedRole.id, selectedMember.id);
+          }
+        }}
         type="button"
       >
         Confirm assignment

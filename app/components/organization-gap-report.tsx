@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { OrganizationHeader } from "./organization-header";
 import { OrganizationSidebar } from "./organization-sidebar";
 import { OrganizationTabs } from "./organization-tabs";
@@ -8,8 +8,8 @@ import {
   formatLkr,
   type EquipmentItem,
 } from "./organization-equipment-data";
-import { initialRoles } from "./organization-data";
-import { useOrganizationEquipmentItems } from "./use-organization-equipment-items";
+import { useOrganizationData } from "./use-organization-data";
+import type { Role } from "./organization-types";
 
 type GapRow = {
   id: string;
@@ -32,29 +32,24 @@ const priorityClasses = {
   Low: "bg-[#e1eee5] text-[#305f49]",
 };
 
-function getGapRows(equipmentItems: EquipmentItem[]): GapRow[] {
-  const unassignedRoles: GapRow[] = initialRoles
+function getGapRows(equipmentItems: EquipmentItem[], roles: Role[]): GapRow[] {
+  const unassignedRoles: GapRow[] = roles
     .filter((role) => role.assignedTo === "Unassigned")
     .map((role) => ({
       id: `role-${role.id}`,
-      description: `${role.title} has nobody assigned`,
+      description: `No one is assigned to ${role.title}`,
       type: "Role",
-      priority:
-        role.title === "Bookkeeper"
-          ? "Urgent"
-          : role.title === "Marketing Lead"
-            ? "Medium"
-            : "Low",
+      priority: role.priority,
       estimatedCost: null,
     }));
   const missingEquipment: GapRow[] = equipmentItems
     .filter((item) => item.status === "Missing")
     .map((item) => ({
       id: `equipment-${item.id}`,
-      description: `${item.name} is missing`,
+      description: `Missing equipment: ${item.name}`,
       type: "Equipment",
       priority: item.priority,
-      estimatedCost: item.estimatedCost,
+      estimatedCost: item.estimatedCost * item.quantity,
     }));
   const rank = { Urgent: 0, Medium: 1, Low: 2 };
   return [...unassignedRoles, ...missingEquipment].sort(
@@ -94,6 +89,14 @@ function ExportDialog({
     { key: "costTotals", label: "Cost totals" },
   ];
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onExport(format, options);
@@ -123,6 +126,7 @@ function ExportDialog({
           <label className="mt-3 block text-[11px] font-semibold text-[#61776a]">
             Format
             <select
+              autoFocus
               className="mt-1 h-[36px] w-full rounded-[7px] border border-[#d6dfd8] bg-white px-2 text-[12px] font-normal text-[#223f30]"
               onChange={(event) =>
                 setFormat(event.target.value as "PDF" | "CSV")
@@ -193,15 +197,15 @@ function SummaryCard({
 }) {
   return (
     <section
-      className={`min-h-[82px] rounded-[12px] px-4 py-[12px] shadow-[0_1px_2px_rgba(0,0,0,0.12)] ${
+      className={`min-h-[108px] rounded-[16px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.1)] ${
         emphasis ? "bg-[#305f49] text-white" : "bg-white text-[#305f49]"
       }`}
     >
-      <p className={`text-[11px] ${emphasis ? "text-white/90" : "text-[#61776a]"}`}>
+      <p className={`text-[14px] ${emphasis ? "text-white/90" : "text-[#61776a]"}`}>
         {title}
       </p>
-      <p className="text-[24px] font-bold leading-[27px]">{value}</p>
-      <p className={`text-[11px] ${emphasis ? "text-white/90" : "text-[#61776a]"}`}>
+      <p className="text-[28px] font-bold leading-9">{value}</p>
+      <p className={`text-[13px] leading-[18px] ${emphasis ? "text-white/90" : "text-[#61776a]"}`}>
         {detail}
       </p>
     </section>
@@ -209,18 +213,29 @@ function SummaryCard({
 }
 
 export default function OrganizationGapReport() {
-  const { items } = useOrganizationEquipmentItems();
+  const { items, roles } = useOrganizationData();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [notice, setNotice] = useState("");
+  const [search, setSearch] = useState("");
   const [printOptions, setPrintOptions] = useState<ExportOptions>({
     unassignedRoles: true,
     missingEquipment: true,
     priorityRanking: true,
     costTotals: true,
   });
-  const rows = getGapRows(items);
-  const unassignedRoleCount = initialRoles.filter(
+  const rows = getGapRows(items, roles);
+  const filteredRows = rows.filter((row) =>
+    `${row.description} ${row.type} ${row.priority}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
+  );
+  const visibleRows = filteredRows.filter(
+    (row) =>
+      (row.type === "Role" && printOptions.unassignedRoles) ||
+      (row.type === "Equipment" && printOptions.missingEquipment),
+  );
+  const unassignedRoleCount = roles.filter(
     (role) => role.assignedTo === "Unassigned",
   ).length;
   const missingEquipmentCount = items.filter(
@@ -240,7 +255,7 @@ export default function OrganizationGapReport() {
       return;
     }
 
-    const filteredRows = rows.filter(
+    const exportRows = filteredRows.filter(
       (row) =>
         (row.type === "Role" && options.unassignedRoles) ||
         (row.type === "Equipment" && options.missingEquipment),
@@ -250,9 +265,9 @@ export default function OrganizationGapReport() {
       "Gap",
       "Type",
       ...(options.priorityRanking ? ["Priority"] : []),
-      ...(options.costTotals ? ["Estimated cost (LKR)"] : []),
+      ...(options.costTotals ? ["Estimated total (LKR)"] : []),
     ];
-    const csvRows = filteredRows.map((row, index) => [
+    const csvRows = exportRows.map((row, index) => [
       String(index + 1),
       row.description,
       row.type,
@@ -280,7 +295,7 @@ export default function OrganizationGapReport() {
     download.href = url;
     download.download = "asara-gap-report.csv";
     download.click();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
     setNotice("Gap report CSV downloaded.");
   }
 
@@ -289,29 +304,29 @@ export default function OrganizationGapReport() {
       <OrganizationSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        onUnavailable={(feature) => setNotice(`${feature} is not available in this local screen.`)}
       />
       <OrganizationHeader
         onMenuClick={() => setSidebarOpen(true)}
-        onSearchChange={() => undefined}
+        onSearchChange={setSearch}
         onUnavailable={(feature) => setNotice(`${feature} is not available in this local screen.`)}
-        search=""
+        searchPlaceholder="Search gaps"
+        search={search}
         title="Organization"
       />
-      <main className="ml-0 px-4 pb-8 pt-[66px] lg:ml-[286px] lg:pl-3 lg:pr-[10px] lg:pt-[32px]">
+      <main className="ml-0 min-w-0 px-4 pb-10 pt-5 lg:ml-[260px] lg:px-3 lg:pt-[28px]">
         <div className="mx-auto max-w-[1192px]">
           <div className="print:hidden">
             <OrganizationTabs active="Gap Report" />
           </div>
-          <div className="mb-[11px] flex flex-wrap items-end justify-between gap-3">
+          <div className="mb-[18px] flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-[18px] font-bold leading-[23px]">Gap report</h2>
-              <p className="text-[13px] text-[#61776a]">
-                Everything missing in your organisation, ranked by priority.
+              <h2 className="text-[20px] font-bold leading-7">Gap Report</h2>
+              <p className="mt-1 text-[14px] leading-5 text-[#61776a]">
+                Unassigned roles and missing equipment, ranked by priority.
               </p>
             </div>
             <button
-              className="h-[37px] rounded-[8px] border border-[#91af9a] bg-white px-[14px] text-[12px] font-semibold text-[#305f49] hover:bg-[#f5f8f6] print:hidden"
+              className="h-10 rounded-[9px] border border-[#91af9a] bg-white px-4 text-sm font-semibold text-[#305f49] hover:bg-[#f5f8f6] print:hidden"
               onClick={() => setDialogOpen(true)}
               type="button"
             >
@@ -322,12 +337,12 @@ export default function OrganizationGapReport() {
             <SummaryCard
               title="Total gaps"
               value={String(rows.length)}
-              detail={`${unassignedRoleCount} roles · ${missingEquipmentCount} items`}
+              detail={`${unassignedRoleCount} roles · ${missingEquipmentCount} equipment items`}
             />
             <SummaryCard
-              title="Urgent"
+              title="Urgent gaps"
               value={String(urgentCount)}
-              detail="fix first"
+              detail="Address these first"
             />
             <div className={printOptions.costTotals ? "" : "print:hidden"}>
               <SummaryCard
@@ -338,7 +353,7 @@ export default function OrganizationGapReport() {
               />
             </div>
           </div>
-          <section className="overflow-hidden rounded-[12px] bg-white px-3 pb-3 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.12)] sm:px-4">
+          <section className="overflow-hidden rounded-[16px] bg-white px-3 pb-4 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.12)] sm:px-4">
             <div aria-label="Gap report details" className="overflow-x-auto" tabIndex={0}>
               <table className="w-full min-w-[600px] border-collapse text-left text-[12px]">
                 <thead className="h-[32px] border-b border-[#e5ebdf] text-[10px] font-bold text-[#61776a]">
@@ -355,13 +370,7 @@ export default function OrganizationGapReport() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows
-                    .filter(
-                      (row) =>
-                        (row.type === "Role" && printOptions.unassignedRoles) ||
-                        (row.type === "Equipment" && printOptions.missingEquipment),
-                    )
-                    .map((row, index) => (
+                  {visibleRows.map((row, index) => (
                       <tr
                         className="h-[31px] border-b border-[#eef1ed]"
                         key={row.id}
@@ -385,6 +394,22 @@ export default function OrganizationGapReport() {
                         )}
                       </tr>
                     ))}
+                  {visibleRows.length === 0 && (
+                    <tr>
+                      <td
+                        className="h-16 px-1 text-[#61776a]"
+                        colSpan={
+                          3 +
+                          Number(printOptions.priorityRanking) +
+                          Number(printOptions.costTotals)
+                        }
+                      >
+                        {rows.length === 0
+                          ? "There are no current gaps."
+                          : "No gaps match your search."}
+                      </td>
+                    </tr>
+                  )}
                   {printOptions.costTotals && (
                     <tr className="h-[34px] font-bold">
                       <td
@@ -406,7 +431,7 @@ export default function OrganizationGapReport() {
             </div>
           </section>
           <p className="sr-only" aria-live="polite">
-            {rows.length} gaps and LKR {formatLkr(totalMoney)} needed.
+            {rows.length} total gaps and LKR {formatLkr(totalMoney)} needed.
           </p>
         </div>
       </main>

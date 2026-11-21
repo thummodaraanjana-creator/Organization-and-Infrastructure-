@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { OrganizationHeader } from "./organization-header";
 import { OrganizationSidebar } from "./organization-sidebar";
 import { OrganizationTabs } from "./organization-tabs";
@@ -11,13 +11,7 @@ import {
   type EquipmentPriority,
   type EquipmentStatus,
 } from "./organization-equipment-data";
-import { useOrganizationEquipmentItems } from "./use-organization-equipment-items";
-
-const priorityClasses: Record<EquipmentPriority, string> = {
-  Urgent: "bg-[#fbe3df] text-[#b3261e]",
-  Medium: "bg-[#fff1d4] text-[#885400]",
-  Low: "bg-[#e1eee5] text-[#305f49]",
-};
+import { useOrganizationEquipmentItems } from "./use-organization-data";
 
 function AddEquipmentDialog({
   onClose,
@@ -30,13 +24,23 @@ function AddEquipmentDialog({
   const [category, setCategory] = useState("Sales");
   const [priority, setPriority] = useState<EquipmentPriority>("Urgent");
   const [status, setStatus] = useState<EquipmentStatus>("Missing");
+  const [quantity, setQuantity] = useState("1");
   const [estimatedCost, setEstimatedCost] = useState("");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const cost = Number(estimatedCost);
+    const itemQuantity = Number(quantity);
     if (!name.trim()) {
       setError("Enter an item name.");
       return;
@@ -45,11 +49,16 @@ function AddEquipmentDialog({
       setError("Enter a valid estimated cost.");
       return;
     }
+    if (!Number.isInteger(itemQuantity) || itemQuantity < 1) {
+      setError("Enter a quantity of at least 1.");
+      return;
+    }
     onSave({
       name: name.trim(),
       category,
       priority,
       status,
+      quantity: itemQuantity,
       estimatedCost: cost,
       notes: notes.trim(),
     });
@@ -66,14 +75,14 @@ function AddEquipmentDialog({
       <section
         aria-labelledby="add-equipment-title"
         aria-modal="true"
-        className="relative z-10 my-auto w-full max-w-[400px] rounded-[12px] bg-white shadow-2xl"
+        className="relative z-10 my-auto w-full max-w-[400px] rounded-[16px] bg-white shadow-2xl"
         role="dialog"
       >
         <h2
           className="border-b border-[#e5ebdf] px-5 py-[17px] text-[16px] font-bold text-[#223f30]"
           id="add-equipment-title"
         >
-          Add tool or equipment
+          Add equipment
         </h2>
         <form className="space-y-3 px-5 pb-5 pt-4" onSubmit={submit}>
           <label className="block text-[12px] font-semibold text-[#405a4b]">
@@ -116,6 +125,16 @@ function AddEquipmentDialog({
               </select>
             </label>
           </div>
+          <label className="block text-[12px] font-semibold text-[#405a4b]">
+            Quantity
+            <input
+              className="mt-1 h-[38px] w-full rounded-[7px] border border-[#d6dfd8] px-3 text-[13px] font-normal outline-none focus:border-[#4b7f5b] focus:ring-1 focus:ring-[#4b7f5b]"
+              min="1"
+              onChange={(event) => setQuantity(event.target.value)}
+              type="number"
+              value={quantity}
+            />
+          </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="text-[12px] font-semibold text-[#405a4b]">
               Status
@@ -131,19 +150,19 @@ function AddEquipmentDialog({
               </select>
             </label>
             <label className="text-[12px] font-semibold text-[#405a4b]">
-              Estimated cost (LKR)
+              Unit cost (LKR)
               <input
                 className="mt-1 h-[38px] w-full rounded-[7px] border border-[#d6dfd8] px-2 text-[13px] font-normal outline-none focus:border-[#4b7f5b]"
                 min="0"
                 onChange={(event) => setEstimatedCost(event.target.value)}
-                placeholder="e.g. 60,000"
+                placeholder="e.g. 60000"
                 type="number"
                 value={estimatedCost}
               />
             </label>
           </div>
           <p className="rounded-[7px] bg-[#e7f3ed] px-3 py-2 text-[11px] leading-[15px] text-[#476c59]">
-            Saving as Missing adds this cost to Total money needed.
+            The total for a missing item is its quantity multiplied by its unit cost.
           </p>
           <label className="block text-[12px] font-semibold text-[#405a4b]">
             Notes (optional)
@@ -182,13 +201,19 @@ function AddEquipmentDialog({
 
 export default function OrganizationEquipment() {
   const { items, setItems } = useOrganizationEquipmentItems();
+  const missingItems = items.filter((item) => item.status === "Missing");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notice, setNotice] = useState("");
-  const missingTotal = items.reduce(
-    (total, item) =>
-      item.status === "Missing" ? total + item.estimatedCost : total,
+  const missingTotal = missingItems.reduce(
+    (total, item) => total + item.estimatedCost * item.quantity,
     0,
+  );
+  const [search, setSearch] = useState("");
+  const filteredItems = items.filter((item) =>
+    `${item.name} ${item.category} ${item.priority} ${item.status}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
   );
 
   function addEquipment(item: Omit<EquipmentItem, "id">) {
@@ -209,6 +234,7 @@ export default function OrganizationEquipment() {
         id: crypto.randomUUID(),
         priority: "Medium",
         status: "Missing",
+        quantity: 1,
         estimatedCost: 0,
         notes: "",
       },
@@ -221,27 +247,27 @@ export default function OrganizationEquipment() {
       <OrganizationSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        onUnavailable={(feature) => setNotice(`${feature} is not available in this local screen.`)}
       />
       <OrganizationHeader
         onMenuClick={() => setSidebarOpen(true)}
-        onSearchChange={() => undefined}
+        onSearchChange={setSearch}
         onUnavailable={(feature) => setNotice(`${feature} is not available in this local screen.`)}
-        search=""
+        searchPlaceholder="Search equipment"
+        search={search}
         title="Organization"
       />
-      <main className="ml-0 px-4 pb-8 pt-[66px] lg:ml-[286px] lg:pl-3 lg:pr-[10px] lg:pt-[32px]">
+      <main className="ml-0 min-w-0 px-4 pb-10 pt-5 lg:ml-[260px] lg:px-3 lg:pt-[28px]">
         <div className="mx-auto max-w-[1192px]">
           <OrganizationTabs active="Equipment & Costs" />
-          <div className="mb-[10px] flex flex-wrap items-end justify-between gap-3">
+          <div className="mb-[18px] flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-[18px] font-bold leading-[23px]">Tools &amp; equipment</h2>
-              <p className="mt-[2px] text-[13px] text-[#61776a]">
-                Add an estimated cost in LKR for each item. Totals cover only what is still missing.
+              <h2 className="text-[20px] font-bold leading-7">Equipment &amp; Costs</h2>
+              <p className="mt-1 text-[14px] leading-5 text-[#61776a]">
+                Track equipment, quantities, and estimated costs. Only missing items count toward the total.
               </p>
             </div>
             <button
-              className="h-[38px] rounded-[9px] bg-[#4b7f5b] px-4 text-[13px] font-semibold text-white hover:bg-[#3f704f]"
+              className="h-10 rounded-[9px] bg-[#4b7f5b] px-4 text-sm font-semibold text-white hover:bg-[#3f704f]"
               onClick={() => setDialogOpen(true)}
               type="button"
             >
@@ -249,54 +275,185 @@ export default function OrganizationEquipment() {
             </button>
           </div>
           <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,1.58fr)_minmax(260px,0.92fr)]">
-            <section className="min-w-0 overflow-hidden rounded-[14px] bg-white px-4 pb-4 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)] sm:px-5">
+            <section className="min-w-0 overflow-hidden rounded-[16px] bg-white px-4 pb-4 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)] sm:px-5">
               <div aria-label="Equipment costs" className="overflow-x-auto" tabIndex={0}>
-                <table className="w-full min-w-[560px] border-collapse text-left text-[12px]">
+                <table className="w-full min-w-[850px] border-collapse text-left text-[12px]">
                   <thead className="h-[34px] border-b border-[#e5ebdf] text-[11px] font-semibold text-[#61776a]">
                     <tr>
-                      <th className="w-[30%] px-2">Item</th>
-                      <th className="w-[19%] px-2">Priority</th>
-                      <th className="w-[22%] px-2">Status</th>
-                      <th className="w-[29%] px-2 text-right">Estimated cost (LKR)</th>
+                      <th className="w-[20%] px-2">Item</th>
+                      <th className="w-[14%] px-2">Category</th>
+                      <th className="w-[14%] px-2">Priority</th>
+                      <th className="w-[14%] px-2">Status</th>
+                      <th className="w-[10%] px-2 text-right">Quantity</th>
+                      <th className="w-[18%] px-2 text-right">Unit cost (LKR)</th>
+                      <th className="w-[10%] px-2 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {items.map((item) => (
+                    {filteredItems.map((item) => (
                       <tr className="h-[44px] border-b border-[#eef1ed]" key={item.id}>
-                        <td className="px-2 text-[#223f30]">{item.name}</td>
                         <td className="px-2">
-                          <span className={`rounded-full px-2 py-1 text-[10px] ${priorityClasses[item.priority]}`}>
-                            {item.priority}
-                          </span>
-                        </td>
-                        <td className="px-2">{item.status}</td>
-                        <td className="px-2 text-right">
                           <input
-                            aria-label={`Estimated cost for ${item.name}`}
-                            className="h-[28px] w-[100px] rounded-[7px] border border-[#91af9a] bg-white px-2 text-right text-[12px] outline-none focus:ring-1 focus:ring-[#4b7f5b]"
-                            inputMode="numeric"
-                            onChange={(event) => {
-                              const cost = Number(
-                                event.target.value.replace(/[^\d]/g, ""),
-                              );
+                            aria-label={`Equipment name for ${item.name}`}
+                            className="h-8 w-full min-w-24 rounded-md border border-[#d6dfd8] px-2 text-xs text-[#223f30] focus:border-[#4b7f5b] focus:outline-none"
+                            onChange={(event) =>
                               setItems((current) =>
                                 current.map((entry) =>
                                   entry.id === item.id
-                                    ? { ...entry, estimatedCost: Number.isFinite(cost) ? cost : 0 }
+                                    ? { ...entry, name: event.target.value }
+                                    : entry,
+                                ),
+                              )
+                            }
+                            value={item.name}
+                          />
+                        </td>
+                        <td className="px-2">
+                          <select
+                            aria-label={`Category for ${item.name}`}
+                            className="h-8 w-full rounded-md border border-[#d6dfd8] bg-white px-1 text-xs text-[#223f30]"
+                            onChange={(event) =>
+                              setItems((current) =>
+                                current.map((entry) =>
+                                  entry.id === item.id
+                                    ? { ...entry, category: event.target.value }
+                                    : entry,
+                                ),
+                              )
+                            }
+                            value={item.category}
+                          >
+                            {["Sales", "Operations", "Marketing", "Finance"].map(
+                              (category) => (
+                                <option key={category}>{category}</option>
+                              ),
+                            )}
+                          </select>
+                        </td>
+                        <td className="px-2">
+                          <select
+                            aria-label={`Priority for ${item.name}`}
+                            className="h-8 w-full rounded-md border border-[#d6dfd8] bg-white px-1 text-xs text-[#223f30]"
+                            onChange={(event) =>
+                              setItems((current) =>
+                                current.map((entry) =>
+                                  entry.id === item.id
+                                    ? {
+                                        ...entry,
+                                        priority: event.target.value as EquipmentPriority,
+                                      }
+                                    : entry,
+                                ),
+                              )
+                            }
+                            value={item.priority}
+                          >
+                            {(["Urgent", "Medium", "Low"] as const).map(
+                              (priority) => (
+                                <option key={priority}>{priority}</option>
+                              ),
+                            )}
+                          </select>
+                        </td>
+                        <td className="px-2">
+                          <select
+                            aria-label={`Status for ${item.name}`}
+                            className="h-8 w-full rounded-md border border-[#d6dfd8] bg-white px-1 text-xs text-[#223f30]"
+                            onChange={(event) =>
+                              setItems((current) =>
+                                current.map((entry) =>
+                                  entry.id === item.id
+                                    ? {
+                                        ...entry,
+                                        status: event.target.value as EquipmentStatus,
+                                      }
+                                    : entry,
+                                ),
+                              )
+                            }
+                            value={item.status}
+                          >
+                            <option>Missing</option>
+                            <option>Owned</option>
+                          </select>
+                        </td>
+                        <td className="px-2 text-right">
+                          <input
+                            aria-label={`Quantity for ${item.name}`}
+                            className="h-8 w-16 rounded-md border border-[#91af9a] px-2 text-right text-xs"
+                            min="1"
+                            onBlur={() => {
+                              if (item.quantity < 1) {
+                                setItems((current) =>
+                                  current.map((entry) =>
+                                    entry.id === item.id
+                                      ? { ...entry, quantity: 1 }
+                                      : entry,
+                                  ),
+                                );
+                              }
+                            }}
+                            onChange={(event) => {
+                              const quantity = Number(event.target.value);
+                              setItems((current) =>
+                                current.map((entry) =>
+                                  entry.id === item.id
+                                    ? {
+                                        ...entry,
+                                        quantity: Number.isInteger(quantity)
+                                          ? quantity
+                                          : entry.quantity,
+                                      }
                                     : entry,
                                 ),
                               );
                             }}
-                            type="text"
-                            value={formatLkr(item.estimatedCost)}
+                            type="number"
+                            value={item.quantity}
                           />
+                        </td>
+                        <td className="px-2 text-right">
+                          <input
+                            aria-label={`Unit cost for ${item.name}`}
+                            className="h-8 w-28 rounded-md border border-[#91af9a] bg-white px-2 text-right text-xs outline-none focus:ring-1 focus:ring-[#4b7f5b]"
+                            min="0"
+                            onChange={(event) => {
+                              const cost = Number(event.target.value);
+                              if (!Number.isFinite(cost) || cost < 0) return;
+                              setItems((current) =>
+                                current.map((entry) =>
+                                  entry.id === item.id
+                                    ? { ...entry, estimatedCost: cost }
+                                    : entry,
+                                ),
+                              );
+                            }}
+                            type="number"
+                            value={item.estimatedCost}
+                          />
+                        </td>
+                        <td className="px-2 text-right">
+                          <button
+                            aria-label={`Remove ${item.name}`}
+                            className="rounded px-2 py-1 text-xs font-semibold text-[#8b1d1d] hover:bg-[#fbe3df]"
+                            onClick={() =>
+                              setItems((current) =>
+                                current.filter((entry) => entry.id !== item.id),
+                              )
+                            }
+                            type="button"
+                          >
+                            Remove
+                          </button>
                         </td>
                       </tr>
                     ))}
-                    {items.length === 0 && (
+                    {filteredItems.length === 0 && (
                       <tr>
-                        <td className="h-20 px-2 text-[#61776a]" colSpan={4}>
-                          No equipment has been added yet.
+                        <td className="h-20 px-2 text-[#61776a]" colSpan={7}>
+                          {items.length === 0
+                            ? "No equipment has been added yet."
+                            : "No equipment matches your search."}
                         </td>
                       </tr>
                     )}
@@ -311,12 +468,14 @@ export default function OrganizationEquipment() {
                   LKR {formatLkr(missingTotal)}
                 </p>
                 <p className="text-[12px]">
-                  {items.filter((item) => item.status === "Missing").length} items still to buy
+                  {missingItems.length}{" "}
+                  {missingItems.length === 1 ? "item" : "items"}{" "}
+                  still to buy
                 </p>
               </section>
               <section className="min-h-[146px] rounded-[12px] bg-white px-4 py-[15px] shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
                 <h3 className="text-[14px] font-bold">Suggested for Retail</h3>
-                <p className="mt-0.5 text-[12px] text-[#61776a]">Tap to add to your list.</p>
+                <p className="mt-0.5 text-[12px] text-[#61776a]">Select an item to add it to your list.</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {suggestedEquipment.map((suggestion) => {
                     const added = items.some((item) => item.name === suggestion.name);
