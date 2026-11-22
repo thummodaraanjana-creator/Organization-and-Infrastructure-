@@ -34,28 +34,28 @@ export default function Sidebar({ activeItem = "Organization" }: SidebarProps) {
   ] as const;
 
   return (
-    <aside className="flex min-h-screen w-[260px] flex-col border-r border-gray-200 bg-[#F4F4F2] shadow-sm">
+    <aside className="flex min-h-screen w-[232px] max-w-[calc(100vw-48px)] flex-col border-r border-gray-200 bg-[#F4F4F2] shadow-sm">
       {/* Logo */}
-      <div className="pt-8 pb-8">
-        <h1 className="text-center text-[30px] font-bold text-[#2F6B4F]">
-          Nova
+      <div className="py-5">
+        <h1 className="text-center text-[26px] font-bold tracking-tight text-[#2F6B4F]">
+          ASARA
         </h1>
       </div>
 
       {/* Current Business */}
-      <div className="px-6">
-        <p className="text-[11px] uppercase font-semibold tracking-wide text-gray-500 mb-4">
+      <div className="px-5">
+        <p className="mb-2 text-[10px] uppercase font-semibold tracking-wide text-gray-500">
           Current Business
         </p>
 
-        <div className="bg-[#739472] rounded-xl px-3 py-1.5 shadow-lg">
+        <div className="rounded-lg bg-[#739472] px-3 py-1 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="font-semibold text-white">
                 Willow &amp; Co.
               </p>
 
-              <p className="text-sm text-green-100">
+              <p className="text-xs text-green-100">
                 Business profile
               </p>
             </div>
@@ -65,11 +65,11 @@ export default function Sidebar({ activeItem = "Organization" }: SidebarProps) {
         </div>
       </div>
 
-      <div className="mx-8 my-4 border-t border-gray-200" />
+      <div className="mx-6 my-3 border-t border-gray-200" />
 
       {/* Workspace */}
-      <div className="flex-1 px-8">
-        <h2 className="text-gray-500 font-bold text-xl mb-2">
+      <div className="flex-1 px-5">
+        <h2 className="mb-1 text-[13px] font-bold text-gray-500">
           WORKSPACE
         </h2>
 
@@ -78,7 +78,7 @@ export default function Sidebar({ activeItem = "Organization" }: SidebarProps) {
             label === activeItem ? (
               <Link
                 aria-current="page"
-                className="relative flex items-center gap-3 rounded-xl bg-[#739472] px-4 py-3 text-white shadow-lg"
+                className="relative flex items-center gap-3 rounded-lg bg-[#739472] px-3 py-2.5 text-white shadow-sm"
                 href="/organization/overview"
                 key={label}
               >
@@ -93,11 +93,11 @@ export default function Sidebar({ activeItem = "Organization" }: SidebarProps) {
         </nav>
       </div>
 
-      <div className="mx-8 mb-10 border-t border-gray-200" />
+      <div className="mx-6 mb-5 border-t border-gray-200" />
 
       {/* Bottom */}
-      <div className="px-8 pb-12">
-        <div className="space-y-3">
+      <div className="px-5 pb-6">
+        <div className="space-y-1">
           <NavItem icon={<Settings size={18} />} label="Settings" />
           <NavItem icon={<LogOut size={18} />} label="Log out" />
         </div>
@@ -114,7 +114,7 @@ function NavItem({
   label: string;
 }) {
   return (
-    <div className="flex items-center gap-3 py-2 text-[#436E58]">
+    <div className="flex items-center gap-3 py-1.5 text-sm text-[#436E58]">
       {icon}
       <span>{label}</span>
     </div>

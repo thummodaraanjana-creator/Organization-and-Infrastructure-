@@ -121,7 +121,7 @@ export function AddTeamMemberDialog({
           Add team member
         </h2>
         <form className="mt-[14px]" onSubmit={submit}>
-          <div className="grid gap-x-4 gap-y-[10px] sm:grid-cols-2 sm:gap-x-4">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-[10px] sm:grid-cols-2">
             <label className="block text-[13px] font-semibold leading-5 text-[#223f30] sm:text-[15px]">
               Full name
               <input
@@ -211,7 +211,7 @@ export function AddTeamMemberDialog({
             />
           </fieldset>
 
-          <div className="mt-[17px] grid gap-x-4 gap-y-[10px] sm:grid-cols-2">
+          <div className="mt-[17px] grid grid-cols-1 gap-x-4 gap-y-[10px] sm:grid-cols-2">
             <label className="block text-[13px] font-semibold leading-5 text-[#223f30] sm:text-[15px]">
               Weekly capacity (hours)
               <input

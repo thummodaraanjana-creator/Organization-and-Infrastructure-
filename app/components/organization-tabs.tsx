@@ -17,11 +17,11 @@ export function OrganizationTabs({ active }: OrganizationTabsProps) {
   return (
     <nav
       aria-label="Organization sections"
-      className="mb-[21px] flex flex-wrap gap-[6px]"
+      className="mb-3 flex max-w-full gap-1.5 overflow-x-auto pb-1 [scrollbar-width:thin]"
     >
       {tabs.map((tab) => {
         const selected = tab.label === active;
-        const className = `inline-flex h-[37px] shrink-0 items-center rounded-full px-[15px] text-[15px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4b7f5b] focus-visible:ring-offset-2 ${
+        const className = `inline-flex h-[34px] shrink-0 items-center rounded-full px-3 text-[13px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4b7f5b] focus-visible:ring-offset-2 ${
           selected
             ? "bg-[#305f49] font-semibold text-white"
             : "bg-white text-[#305f49] hover:bg-[#e1eee5]"

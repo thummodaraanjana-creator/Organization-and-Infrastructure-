@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { OrganizationHeader } from "./organization-header";
 import { OrganizationSidebar } from "./organization-sidebar";
@@ -21,12 +21,12 @@ type SummaryCardProps = {
 
 function SummaryCard({ title, value, detail }: SummaryCardProps) {
   return (
-    <section className="min-h-[115px] rounded-[16px] bg-white px-5 py-[17px] shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
-      <p className="text-[15px] leading-[19px] text-[#61776a]">{title}</p>
-      <p className="mt-[-1px] truncate text-[31px] font-bold leading-[39px] text-[#305f49]">
+    <section className="min-h-[92px] rounded-[12px] bg-white px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
+      <p className="text-[13px] leading-[17px] text-[#61776a]">{title}</p>
+      <p className="break-words text-[26px] font-bold leading-[32px] text-[#305f49]">
         {value}
       </p>
-      <p className="text-[15px] leading-[18px] text-[#61776a]">{detail}</p>
+      <p className="text-[12px] leading-[16px] text-[#61776a]">{detail}</p>
     </section>
   );
 }
@@ -45,13 +45,13 @@ function OrganizationChart({
   );
 
   return (
-    <section className="rounded-[16px] bg-white px-5 pb-5 pt-[18px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[310px]">
-      <h2 className="text-[19px] font-bold leading-6 text-[#223f30]">
+    <section className="rounded-[12px] bg-white px-4 pb-4 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[260px]">
+      <h2 className="text-[16px] font-bold leading-5 text-[#223f30]">
         Organization chart
       </h2>
-      <div className="mt-[7px] flex flex-col items-center">
+      <div className="mt-[7px] flex min-w-0 flex-col items-center">
         {filteredRoles.length > 0 ? (
-          <div className="flex w-full flex-wrap justify-center gap-[10px]">
+          <div className="grid w-full grid-cols-1 justify-items-stretch gap-[10px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2">
             {filteredRoles.map((role) => (
               <ChartNode
                 key={role.id}
@@ -82,7 +82,7 @@ function ChartNode({
 }) {
   return (
     <Link
-      className={`flex min-h-[66px] min-w-[136px] flex-col justify-center rounded-[13px] border bg-white px-[12px] text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] sm:px-[15px] ${
+      className={`flex min-h-[66px] w-full flex-col justify-center rounded-[13px] border bg-white px-[12px] text-left shadow-[0_1px_2px_rgba(0,0,0,0.08)] sm:px-[15px] ${
         unassigned
           ? "border-dashed border-[#d93224]"
           : "border-[#a5beac]"
@@ -130,8 +130,8 @@ function NeedsAttention({
   ].filter((item) => item.text.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <section className="rounded-[16px] bg-white px-5 pb-[14px] pt-[18px] shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[310px]">
-      <h2 className="mb-[15px] text-[19px] font-bold leading-6 text-[#223f30]">
+    <section className="rounded-[12px] bg-white px-4 pb-3 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[260px]">
+      <h2 className="mb-3 text-[16px] font-bold leading-5 text-[#223f30]">
         Needs attention
       </h2>
       <div className="space-y-[12px]">
@@ -166,6 +166,7 @@ export default function OrganizationDashboard() {
   const [bannerVisible, setBannerVisible] = useState(true);
   const [notice, setNotice] = useState("");
   const [search, setSearch] = useState("");
+  const suggestionActionTaken = useRef(false);
   const missingItems = items.filter((item) => item.status === "Missing");
   const moneyNeeded = missingItems.reduce(
     (total, item) => total + item.estimatedCost * item.quantity,
@@ -179,6 +180,9 @@ export default function OrganizationDashboard() {
   ).length;
 
   function applySuggestedSetup() {
+    if (suggestionActionTaken.current) return;
+    suggestionActionTaken.current = true;
+
     const newRoles = initialRoles.filter(
       (suggestedRole) =>
         !roles.some((role) => role.id === suggestedRole.id),
@@ -197,6 +201,12 @@ export default function OrganizationDashboard() {
         ? "Suggested setup applied."
         : "Your setup already includes the suggestions.",
     );
+  }
+
+  function skipSuggestedSetup() {
+    if (suggestionActionTaken.current) return;
+    suggestionActionTaken.current = true;
+    setBannerVisible(false);
   }
 
   const showNotice = useCallback((feature: string) => {
@@ -223,19 +233,19 @@ export default function OrganizationDashboard() {
         search={search}
         title="Organization"
       />
-      <main className="ml-0 min-w-0 px-4 pb-10 pt-5 lg:ml-[260px] lg:px-3 lg:pt-[28px]">
-        <div className="mx-auto max-w-[1192px]">
+      <main className="ml-0 min-w-0 px-4 pb-8 pt-4 lg:ml-[232px] lg:px-5 lg:pt-5">
+        <div className="mx-auto max-w-[1120px]">
           <OrganizationTabs active="Overview" />
-          <div className="mb-[18px]">
-            <h2 className="text-[20px] font-bold leading-7 text-[#223f30]">
+          <div className="mb-3">
+            <h2 className="text-[18px] font-bold leading-6 text-[#223f30]">
               Organization Overview
             </h2>
-            <p className="mt-1 text-[14px] leading-5 text-[#61776a]">
+            <p className="mt-0.5 text-[13px] leading-4 text-[#61776a]">
               Review your team, equipment, and current organization gaps.
             </p>
           </div>
           {bannerVisible && (
-            <section className="mb-[20px] flex flex-col gap-3 rounded-[16px] bg-[#dde9dc] px-4 py-[14px] shadow-[0_1px_2px_rgba(0,0,0,0.1)] sm:px-5 lg:min-h-[83px] lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+            <section className="mb-3 flex flex-col gap-2 rounded-[12px] bg-[#dde9dc] px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.1)] lg:min-h-[68px] lg:flex-row lg:items-center lg:justify-between lg:gap-3">
               <div>
                 <h2 className="text-[16px] font-bold leading-[22px] text-[#223f30]">
                   Suggested starting setup for Retail · One-time sale
@@ -245,16 +255,16 @@ export default function OrganizationDashboard() {
                   type. Edit them instead of starting from scratch.
                 </p>
               </div>
-              <div className="flex shrink-0 gap-[10px]">
+              <div className="flex w-full flex-wrap gap-[10px] sm:w-auto sm:flex-nowrap sm:shrink-0">
                 <button
-                  className="h-[41px] rounded-[10px] border border-[#4b7f5b] bg-white px-[17px] text-[14px] text-[#305f49] hover:bg-[#f5f8f6]"
-                  onClick={() => setBannerVisible(false)}
+                  className="h-[41px] flex-1 rounded-[10px] border border-[#4b7f5b] bg-white px-[17px] text-[14px] text-[#305f49] hover:bg-[#f5f8f6] sm:flex-none"
+                  onClick={skipSuggestedSetup}
                   type="button"
                 >
                   Skip
                 </button>
                 <button
-                  className="h-[41px] rounded-[10px] bg-[#4b7f5b] px-[14px] text-[14px] font-semibold text-white hover:bg-[#3f704f]"
+                  className="h-[41px] flex-1 rounded-[10px] bg-[#4b7f5b] px-[14px] text-[14px] font-semibold text-white hover:bg-[#3f704f] sm:flex-none"
                   onClick={applySuggestedSetup}
                   type="button"
                 >
@@ -264,7 +274,7 @@ export default function OrganizationDashboard() {
             </section>
           )}
 
-          <div className="mb-[20px] grid grid-cols-1 gap-[12px] sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <SummaryCard
               title="Roles"
               value={String(roles.length)}

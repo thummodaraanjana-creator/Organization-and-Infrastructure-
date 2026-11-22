@@ -124,7 +124,7 @@ export default function OrganizationOverview() {
         searchPlaceholder="Search roles and team"
         search={search}
       />
-      <main className="ml-0 min-w-0 px-4 pb-10 pt-5 lg:ml-[260px] lg:px-3 lg:pt-[28px]">
+      <main className="ml-0 min-w-0 px-4 pb-8 pt-4 lg:ml-[232px] lg:px-5 lg:pt-5">
         <div className="mx-auto max-w-[1192px]">
           <RolesTable
             members={members}

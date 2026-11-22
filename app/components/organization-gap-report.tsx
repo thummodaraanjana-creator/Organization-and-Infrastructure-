@@ -75,7 +75,7 @@ function ExportDialog({
   gapCount: number;
   moneyNeeded: number;
 }) {
-  const [format, setFormat] = useState<"PDF" | "CSV">("PDF");
+  const [format, setFormat] = useState<"PDF" | "CSV">("CSV");
   const [options, setOptions] = useState<ExportOptions>({
     unassignedRoles: true,
     missingEquipment: true,
@@ -113,7 +113,7 @@ function ExportDialog({
       <section
         aria-labelledby="export-gap-title"
         aria-modal="true"
-        className="relative z-10 my-auto w-full max-w-[390px] rounded-[12px] bg-white px-5 pb-5 pt-5 shadow-2xl"
+        className="relative z-10 my-auto w-full max-w-[390px] rounded-[12px] bg-white px-4 pb-4 pt-4 shadow-2xl"
         role="dialog"
       >
         <h2 className="text-[16px] font-bold text-[#223f30]" id="export-gap-title">
@@ -197,15 +197,15 @@ function SummaryCard({
 }) {
   return (
     <section
-      className={`min-h-[108px] rounded-[16px] px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.1)] ${
+      className={`min-h-[92px] rounded-[12px] px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)] ${
         emphasis ? "bg-[#305f49] text-white" : "bg-white text-[#305f49]"
       }`}
     >
-      <p className={`text-[14px] ${emphasis ? "text-white/90" : "text-[#61776a]"}`}>
+      <p className={`text-[12px] ${emphasis ? "text-white/90" : "text-[#61776a]"}`}>
         {title}
       </p>
-      <p className="text-[28px] font-bold leading-9">{value}</p>
-      <p className={`text-[13px] leading-[18px] ${emphasis ? "text-white/90" : "text-[#61776a]"}`}>
+      <p className="text-[24px] font-bold leading-8">{value}</p>
+      <p className={`text-[12px] leading-[16px] ${emphasis ? "text-white/90" : "text-[#61776a]"}`}>
         {detail}
       </p>
     </section>
@@ -267,6 +267,10 @@ export default function OrganizationGapReport() {
       ...(options.priorityRanking ? ["Priority"] : []),
       ...(options.costTotals ? ["Estimated total (LKR)"] : []),
     ];
+    const exportTotal = exportRows.reduce(
+      (sum, row) => sum + (row.estimatedCost ?? 0),
+      0,
+    );
     const csvRows = exportRows.map((row, index) => [
       String(index + 1),
       row.description,
@@ -282,7 +286,7 @@ export default function OrganizationGapReport() {
         "Total money needed",
         "",
         ...(options.priorityRanking ? [""] : []),
-        String(totalMoney),
+        String(exportTotal),
       ]);
     }
     const csv = [headings, ...csvRows]
@@ -293,9 +297,11 @@ export default function OrganizationGapReport() {
     );
     const download = document.createElement("a");
     download.href = url;
-    download.download = "asara-gap-report.csv";
+    download.download = "ASARA-Gap-Report.csv";
+    document.body.append(download);
     download.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    download.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     setNotice("Gap report CSV downloaded.");
   }
 
@@ -313,15 +319,15 @@ export default function OrganizationGapReport() {
         search={search}
         title="Organization"
       />
-      <main className="ml-0 min-w-0 px-4 pb-10 pt-5 lg:ml-[260px] lg:px-3 lg:pt-[28px]">
-        <div className="mx-auto max-w-[1192px]">
+      <main className="ml-0 min-w-0 px-4 pb-8 pt-4 lg:ml-[232px] lg:px-5 lg:pt-5">
+        <div className="mx-auto max-w-[1120px]">
           <div className="print:hidden">
             <OrganizationTabs active="Gap Report" />
           </div>
-          <div className="mb-[18px] flex flex-wrap items-end justify-between gap-3">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <h2 className="text-[20px] font-bold leading-7">Gap Report</h2>
-              <p className="mt-1 text-[14px] leading-5 text-[#61776a]">
+              <h2 className="text-[18px] font-bold leading-6">Gap Report</h2>
+              <p className="mt-0.5 text-[13px] leading-4 text-[#61776a]">
                 Unassigned roles and missing equipment, ranked by priority.
               </p>
             </div>
@@ -333,7 +339,7 @@ export default function OrganizationGapReport() {
               Export
             </button>
           </div>
-          <div className="mb-[13px] grid gap-3 sm:grid-cols-3">
+          <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <SummaryCard
               title="Total gaps"
               value={String(rows.length)}
@@ -353,8 +359,14 @@ export default function OrganizationGapReport() {
               />
             </div>
           </div>
-          <section className="overflow-hidden rounded-[16px] bg-white px-3 pb-4 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.12)] sm:px-4">
-            <div aria-label="Gap report details" className="overflow-x-auto" tabIndex={0}>
+          <section className="overflow-hidden rounded-[12px] bg-white px-3 pb-3 pt-2 shadow-[0_1px_3px_rgba(0,0,0,0.12)] sm:px-4">
+            <div className="flex items-center justify-between border-b border-[#edf1ec] px-1 pb-2">
+              <h3 className="text-[14px] font-bold text-[#223f30]">Gap details</h3>
+              <span className="text-[11px] font-medium text-[#61776a]">
+                {visibleRows.length} {visibleRows.length === 1 ? "item" : "items"}
+              </span>
+            </div>
+            <div aria-label="Gap report details" className="overflow-x-auto pt-1" tabIndex={0}>
               <table className="w-full min-w-[600px] border-collapse text-left text-[12px]">
                 <thead className="h-[32px] border-b border-[#e5ebdf] text-[10px] font-bold text-[#61776a]">
                   <tr>

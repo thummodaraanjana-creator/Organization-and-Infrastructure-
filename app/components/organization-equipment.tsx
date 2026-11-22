@@ -75,7 +75,7 @@ function AddEquipmentDialog({
       <section
         aria-labelledby="add-equipment-title"
         aria-modal="true"
-        className="relative z-10 my-auto w-full max-w-[400px] rounded-[16px] bg-white shadow-2xl"
+        className="relative z-10 my-auto w-full max-w-[400px] rounded-[12px] bg-white shadow-2xl"
         role="dialog"
       >
         <h2
@@ -95,7 +95,7 @@ function AddEquipmentDialog({
               value={name}
             />
           </label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <label className="text-[12px] font-semibold text-[#405a4b]">
               Category
               <select
@@ -135,7 +135,7 @@ function AddEquipmentDialog({
               value={quantity}
             />
           </label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <label className="text-[12px] font-semibold text-[#405a4b]">
               Status
               <select
@@ -178,7 +178,7 @@ function AddEquipmentDialog({
               {error}
             </p>
           )}
-          <div className="flex justify-between pt-1">
+          <div className="flex flex-wrap justify-end gap-2 pt-1 sm:justify-between">
             <button
               className="h-[37px] rounded-[8px] border border-[#d6dfd8] px-4 text-[13px] text-[#405a4b] hover:bg-[#f5f8f6]"
               onClick={onClose}
@@ -256,13 +256,13 @@ export default function OrganizationEquipment() {
         search={search}
         title="Organization"
       />
-      <main className="ml-0 min-w-0 px-4 pb-10 pt-5 lg:ml-[260px] lg:px-3 lg:pt-[28px]">
-        <div className="mx-auto max-w-[1192px]">
+      <main className="ml-0 min-w-0 px-4 pb-8 pt-4 lg:ml-[232px] lg:px-5 lg:pt-5">
+        <div className="mx-auto max-w-[1120px]">
           <OrganizationTabs active="Equipment & Costs" />
-          <div className="mb-[18px] flex flex-wrap items-end justify-between gap-3">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <h2 className="text-[20px] font-bold leading-7">Equipment &amp; Costs</h2>
-              <p className="mt-1 text-[14px] leading-5 text-[#61776a]">
+              <h2 className="text-[18px] font-bold leading-6">Equipment &amp; Costs</h2>
+              <p className="mt-0.5 text-[13px] leading-4 text-[#61776a]">
                 Track equipment, quantities, and estimated costs. Only missing items count toward the total.
               </p>
             </div>
@@ -275,7 +275,7 @@ export default function OrganizationEquipment() {
             </button>
           </div>
           <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,1.58fr)_minmax(260px,0.92fr)]">
-            <section className="min-w-0 overflow-hidden rounded-[16px] bg-white px-4 pb-4 pt-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)] sm:px-5">
+            <section className="min-w-0 overflow-hidden rounded-[12px] bg-white px-3 pb-3 pt-2 shadow-[0_1px_3px_rgba(0,0,0,0.1)] sm:px-4">
               <div aria-label="Equipment costs" className="overflow-x-auto" tabIndex={0}>
                 <table className="w-full min-w-[850px] border-collapse text-left text-[12px]">
                   <thead className="h-[34px] border-b border-[#e5ebdf] text-[11px] font-semibold text-[#61776a]">

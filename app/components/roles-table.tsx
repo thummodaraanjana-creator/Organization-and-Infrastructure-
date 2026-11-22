@@ -53,25 +53,25 @@ export function RolesTable({
   return (
     <section className="min-w-0">
       <OrganizationTabs active="Roles & Team" />
-      <div className="mb-[18px] flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+      <div className="mb-3 flex flex-col gap-2 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h2 className="text-[20px] font-bold leading-7 text-[#223f30]">
+          <h2 className="text-[18px] font-bold leading-6 text-[#223f30]">
             Roles &amp; Team
           </h2>
-          <p className="mt-1 text-[14px] leading-5 text-[#61776a]">
+          <p className="mt-0.5 text-[13px] leading-4 text-[#61776a]">
             Review responsibilities, skill coverage, and team workload.
           </p>
         </div>
-        <div className="flex flex-wrap gap-[10px]">
+        <div className="flex w-full flex-wrap gap-[10px] xl:w-auto">
           <button
-            className="h-10 rounded-[9px] border border-[#4b7f5b] bg-white px-4 text-sm font-semibold text-[#305f49] hover:bg-[#e1eee5]"
+            className="h-10 flex-1 rounded-[9px] border border-[#4b7f5b] bg-white px-4 text-sm font-semibold text-[#305f49] hover:bg-[#e1eee5] sm:flex-none"
             onClick={onAddMember}
             type="button"
           >
             Add team member
           </button>
           <button
-            className="h-10 rounded-[9px] bg-[#4b7f5b] px-4 text-sm font-semibold text-white hover:bg-[#3f704f]"
+            className="h-10 flex-1 rounded-[9px] bg-[#4b7f5b] px-4 text-sm font-semibold text-white hover:bg-[#3f704f] sm:flex-none"
             onClick={onAddRole}
             type="button"
           >
@@ -81,13 +81,13 @@ export function RolesTable({
       </div>
 
       <div className="grid items-start gap-[12px] xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.9fr)] xl:gap-[18px]">
-        <section className="min-w-0 overflow-hidden rounded-[16px] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[522px]">
-          <div className="px-5 pt-5">
-            <h3 className="text-[19px] font-bold leading-6 text-[#223f30]">
+        <section className="min-w-0 overflow-hidden rounded-[12px] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[430px]">
+          <div className="px-4 pt-3">
+            <h3 className="text-[16px] font-bold leading-5 text-[#223f30]">
               Roles
             </h3>
           </div>
-          <div aria-label="Roles" className="overflow-x-auto px-5 pb-5 pt-[10px]" tabIndex={0}>
+          <div aria-label="Roles" className="overflow-x-auto px-4 pb-4 pt-2" tabIndex={0}>
             <table className="w-full min-w-[610px] table-fixed border-collapse text-left">
               <colgroup>
                 <col className="w-[28%]" />
@@ -106,19 +106,19 @@ export function RolesTable({
               <tbody>
                 {filteredRoles.map((role) => (
                   <tr
-                    className="h-[44px] border-t border-[#e5ebdf] text-[13px] leading-[19px] sm:text-[14px]"
+                    className="border-t border-[#e5ebdf] text-[13px] leading-[19px] sm:text-[14px]"
                     key={role.id}
                   >
-                    <td className="truncate pl-[9px] text-[#223f30]">
+                    <td className="break-words px-2 py-3 text-[#223f30]">
                       {role.title}
                     </td>
-                    <td className="truncate pl-2 text-[#61776a]">
+                    <td className="break-words px-2 py-3 text-[#61776a]">
                       {role.requiredSkills}
                     </td>
-                    <td className="truncate pl-2 text-[#223f30]">
+                    <td className="break-words px-2 py-3 text-[#223f30]">
                       {role.assignedTo}
                     </td>
-                    <td className="overflow-hidden pl-2">
+                    <td className="px-2 py-3">
                       <MatchBadge match={role.match} tone={role.matchTone} />
                     </td>
                   </tr>
@@ -140,7 +140,7 @@ export function RolesTable({
           </div>
         </section>
 
-        <div className="grid gap-[18px]">
+        <div className="grid gap-3">
           <WorkloadPanel members={members} search={search} />
           <AssignmentPanel
             members={members}
@@ -167,15 +167,15 @@ function WorkloadPanel({
   );
 
   return (
-    <section className="rounded-[16px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[232px]">
-      <h3 className="text-[19px] font-bold leading-6 text-[#223f30]">
+    <section className="rounded-[12px] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.1)] xl:min-h-[190px]">
+      <h3 className="text-[16px] font-bold leading-5 text-[#223f30]">
         Team workload
       </h3>
-      <div className="mt-[15px] space-y-[27px]">
+      <div className="mt-3 space-y-3">
         {filteredMembers.map((member) => (
           <div className="space-y-[1px]" key={member.id}>
             <div className="flex items-center justify-between gap-3 text-[15px] leading-6 text-[#223f30]">
-              <span className="truncate">
+              <span className="min-w-0 break-words">
                 {member.name} ·{" "}
                 {member.roleCount === 0
                   ? "no role yet"
@@ -203,7 +203,7 @@ function WorkloadPanel({
                 style={{ width: `${Math.min(member.workload, 100)}%` }}
               />
             </div>
-            <p className="truncate text-xs text-[#61776a]">
+            <p className="break-words text-xs text-[#61776a]">
               {member.skills.length > 0
                 ? member.skills.join(", ")
                 : "No skills added"}
@@ -256,8 +256,8 @@ function AssignmentPanel({
         );
 
   return (
-    <section className="rounded-[16px] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
-      <h3 className="text-[19px] font-bold leading-6 text-[#223f30]">
+    <section className="rounded-[12px] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
+      <h3 className="text-[16px] font-bold leading-5 text-[#223f30]">
         Assign member to role
       </h3>
       {assignableRoles.length > 0 && members.length > 0 ? (

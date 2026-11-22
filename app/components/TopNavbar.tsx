@@ -43,7 +43,7 @@ export default function TopNavbar({
 
   return (
     <header
-      className={`flex min-h-[88px] w-full shrink-0 flex-wrap items-center justify-between gap-y-2 border-b-2 border-[#c3cfbf] bg-white px-4 py-3 shadow-[0_2px_6px_rgba(47,93,80,0.08)] sm:h-[88px] sm:flex-nowrap sm:px-8 sm:py-0 ${className}`}
+      className={`flex min-h-[72px] w-full shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-2 border-b border-[#c3cfbf] bg-white px-3 py-2 shadow-[0_2px_6px_rgba(47,93,80,0.08)] sm:h-[72px] sm:flex-nowrap sm:gap-4 sm:px-5 lg:px-6 ${className}`}
     >
       <div className="order-1 flex min-w-0 items-center gap-2 sm:gap-3">
         {onMenuClick && (
@@ -60,7 +60,7 @@ export default function TopNavbar({
             </span>
           </button>
         )}
-        <h1 className="truncate text-base font-bold tracking-tight text-[#2a6355] sm:text-xl">
+        <h1 className="min-w-0 break-words text-[15px] font-bold tracking-tight text-[#2a6355] sm:text-[17px]">
           {title}
         </h1>
       </div>
@@ -68,7 +68,7 @@ export default function TopNavbar({
       <form
         role="search"
         onSubmit={handleSubmit}
-        className="order-3 flex h-10 w-full basis-full items-center gap-2 rounded-full border border-[#d3dccd] bg-[#f3f6f1] px-4 text-[#5f7a6d] transition focus-within:border-[#3f6b4a] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#5b8461]/25 sm:order-2 sm:h-10 sm:w-[min(280px,30vw)] sm:basis-auto"
+        className="order-3 flex h-9 w-full basis-full items-center gap-2 rounded-full border border-[#d3dccd] bg-[#f3f6f1] px-3 text-[#5f7a6d] transition focus-within:border-[#3f6b4a] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#5b8461]/25 sm:order-2 sm:h-9 sm:w-[min(260px,30vw)] sm:basis-auto"
       >
         <svg
           width="16"
@@ -99,7 +99,7 @@ export default function TopNavbar({
           type="button"
           onClick={onProfileClick}
           aria-label="Open user profile"
-          className="flex h-10 w-10 items-center justify-center rounded-full border-[1.5px] border-[#5b8461] bg-[#8aa893] text-[15px] font-bold text-[#1f4d3f] shadow-[0_3px_5px_rgba(47,93,80,0.3)] transition hover:bg-[#7c9b86] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3f6b4a] focus-visible:ring-offset-2"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-[#5b8461] bg-[#8aa893] text-[15px] font-bold text-[#1f4d3f] shadow-[0_2px_4px_rgba(47,93,80,0.25)] transition hover:bg-[#7c9b86] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3f6b4a] focus-visible:ring-offset-2"
         >
           <User size={20} />
         </button>
@@ -112,7 +112,7 @@ export default function TopNavbar({
               ? "Notifications, unread messages"
               : "Notifications"
           }
-          className="relative flex h-10 w-10 items-center justify-center rounded-full border-[1.5px] border-[#5b8461] bg-[#8aa893] text-[#1f4d3f] shadow-[0_3px_5px_rgba(47,93,80,0.3)] transition hover:bg-[#7c9b86] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3f6b4a] focus-visible:ring-offset-2"
+          className="relative flex h-9 w-9 items-center justify-center rounded-full border border-[#5b8461] bg-[#8aa893] text-[#1f4d3f] shadow-[0_2px_4px_rgba(47,93,80,0.25)] transition hover:bg-[#7c9b86] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3f6b4a] focus-visible:ring-offset-2"
         >
           <svg
             width="18"

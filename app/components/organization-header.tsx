@@ -21,7 +21,7 @@ export function OrganizationHeader({
 }: OrganizationHeaderProps) {
   return (
     <TopNavbar
-      className="sticky top-0 z-20 lg:ml-[260px] lg:w-[calc(100%-260px)]"
+      className="sticky top-0 z-20 lg:ml-[232px] lg:w-[calc(100%-232px)]"
       title={title}
       searchPlaceholder={searchPlaceholder}
       onSearch={onSearchChange}
